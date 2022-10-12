@@ -14,7 +14,6 @@
 }
 
 .sidebar * {
-    margin-top: 5px;
     display: grid;
     grid-template-columns: 4fr 1fr;
     align-items: center;
@@ -29,7 +28,7 @@
 }
 
 .signal * {
-    padding: 5px;
+    padding: 1px 5px 1px 5px;
 }
 
 .signal :hover {
