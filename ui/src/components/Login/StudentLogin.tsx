@@ -1,7 +1,7 @@
-import "../App.css";
+import "../../App.css";
 import { useNavigate } from "react-router-dom";
 
-const LoginStudent = () => {
+const StudentLogin = () => {
     const navigate = useNavigate();
     return(
         <div className="Card">
@@ -16,10 +16,10 @@ const LoginStudent = () => {
                     <option value="zulu">ZULU</option>
                 </select>
             </div>
-            <button>JOIN</button>
+            <button onClick={() => navigate("/student")}>JOIN</button>
             <button onClick={() => navigate("/")}>BACK</button>
         </div>
     )
 };
 
-export default LoginStudent;
+export default StudentLogin;

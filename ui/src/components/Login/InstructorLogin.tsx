@@ -1,16 +1,16 @@
-import "../App.css";
+import "../../App.css";
 import { useNavigate } from "react-router-dom";
 
-const LoginInstructor = () => {
+const InstructorLogin = () => {
     const navigate = useNavigate();
     return(
         <div className="Card">
             <input type="text" defaultValue="PASSWORD"></input>
-            <button>CREATE</button>
-            <button>JOIN</button>
+            <button onClick={()=> navigate("/instructorCreate")}>CREATE</button>
+            <button onClick={()=> navigate("/instructorJoin")}>JOIN</button>
             <button onClick={() => navigate("/")}>BACK</button>
         </div>
     )
 };
 
-export default LoginInstructor;
+export default InstructorLogin;
