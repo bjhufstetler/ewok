@@ -1,0 +1,59 @@
+.instructorPage {
+    position: fixed;
+    left: 0;
+    top: 120px;
+    display: grid;
+    grid-template-columns: 300px 400px auto;
+}
+
+.sidebar {
+    background-color: #47281a;
+    padding: 20px;
+    border-radius: 1em;
+    text-align: left;
+}
+
+.sidebar * {
+    margin-top: 5px;
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    align-items: center;
+}
+
+.signalGroup {
+    margin-bottom: 20px;
+}
+
+.signal {
+    margin-left: 20px;
+}
+
+.signal * {
+    padding: 5px;
+}
+
+.signal :hover {
+    border-radius: 5px;
+    color: #47281a;
+    background: #9b887f;
+    cursor: pointer;
+}
+
+.signalDetails {
+    padding: 10px 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.signalDetails * {
+    display: grid;
+    grid-template-columns: 1.5fr 3fr 1fr;
+    margin-top: 10px;
+    margin-right: 20px;
+}
+
+
+.signalDetails :last-child {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}

@@ -23,3 +23,18 @@ function App() {
 }
 
 export default App
+
+/* 
+  Palette
+    #2e292b Dark Grey
+    #222834 Dark Blue
+    #393e47 Slate
+    #768583 Grey
+    #47281a Brown
+    #e17f2e Orange
+  
+  Icon Family
+    https://react-icons.github.io/react-icons/icons?name=tb
+  
+  
+*/

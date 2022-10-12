@@ -73,6 +73,9 @@ input {
   text-align: center;
 }
 
+select {
+  text-align-last: center;
+}
 
 .Card {
   padding: .5em;
@@ -108,4 +111,16 @@ input {
 
 .header :last-child {
   text-align: right;
+}
+
+.subheader {
+  position: fixed;
+  left: 0;
+  top: 70px;
+  width: 95%;
+  background-color: #222834;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 5% 10px 20px;
 }
