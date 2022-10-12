@@ -4,39 +4,3 @@
   padding: 2rem;
   text-align: center;
 }
-
-.Card {
-  padding: .5em;
-  background-color: #6e72aeaa;
-  border-radius: 1em;
-  display: flex;
-  flex-direction: column;
-}
-
-.Card * {
-  margin: .5em;
-}
-
-.header {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  background-color: grey;
-  font-size: 30px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-.header * {
-  padding: 10px 20px 10px 20px;
-}
-
-.header :first-child {
-  text-align: left;
-}
-
-.header :last-child {
-  text-align: right
-}
-

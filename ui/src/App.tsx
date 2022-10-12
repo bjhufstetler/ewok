@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Landing, StudentLogin, StudentPage, InstructorLogin, InstructorCreate, InstructorJoin, InstructorPage, Header } from "./components";
+import { Landing, StudentLogin, StudentPage, InstructorLogin, InstructorCreate, InstructorJoin, InstructorPage, Header, Help } from "./components";
 import './App.css';
 
 function App() {
@@ -15,6 +15,7 @@ function App() {
           <Route path="/instructorCreate" element={<InstructorCreate/>} />
           <Route path="/instructorJoin" element={<InstructorJoin/>} />
           <Route path="/instructor" element={<InstructorPage/>} />
+          <Route path="/help" element={<Help/>} />
         </Routes> 
       </div>
     </Router>
