@@ -11,6 +11,8 @@
     padding: 20px;
     border-radius: 1em;
     text-align: left;
+    height: 750px;
+    overflow: auto;
 }
 
 .sidebar * {

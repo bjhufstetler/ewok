@@ -17,6 +17,7 @@
     "react-router-dom": "^6.4.2"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.14",
     "@types/plotly.js": "^2.12.7",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",

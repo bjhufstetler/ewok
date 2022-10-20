@@ -1,8 +1,11 @@
+import { useEwokContext } from "../../context/EwokContext";
+
 const Subheader = () => {
+    const { ewok } = useEwokContext();
     return(
         <div className='subheader'>
-            <div>Team: Instructor</div>
-            <div>Server: 01ab</div>
+            <div>Team: {ewok?.team}</div>
+            <div>Server: {ewok?.server}</div>
         </div>
     )
 };

@@ -1,71 +1,35 @@
 import Plot from 'react-plotly.js';
 import { useEffect, useState } from 'react';
+import { useEwokContext } from '../../context/EwokContext';
 
 const Satellites = () => {
-    interface satEnv {
-        team?: string, 
-        cf?: number, 
-        bw?: number, 
-        amp?: number, 
-        sat?: string
-    }
-
-    interface signals {
-        team?: string;
-        x?: number;
-        y?: number;
-        sat?: string;
-    }
-
-    const satEnv = [
-        {team: 'Instructor', cf: 12550, bw: 25, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12560, bw: .5, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12565, bw: .5, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12566, bw: .5, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12567, bw: .5, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12568, bw: .5, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12570, bw: .5, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12575, bw: 5, amp: -90, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12250, bw: 2, amp: -92, sat: 'Satellite A'},
-        {team: 'Instructor', cf: 12150, bw: 3, amp: -95, sat: 'Satellite B'},
-        {team: 'Instructor', cf: 12350, bw: 4, amp: -93, sat: 'Satellite C'},
-        {team: 'Victor', cf: 12550, bw: 30, amp: -88, sat: 'Satellite A'},
-        {team: 'Victor', cf: 12750, bw: 10, amp: -87, sat: 'Satellite B'},
-        {team: 'Whiskey', cf: 12550, bw: 30, amp: -88, sat: 'Satellite A'},
-        {team: 'Whiskey', cf: 12550, bw: 30, amp: -88, sat: 'Satellite B'},
-        {team: 'Xray', cf: 12550, bw: 30, amp: -88, sat: 'Satellite C'},
-        {team: 'Yankee', cf: 12850, bw: 30, amp: -88, sat: 'Satellite A'},
-        {team: 'Zulu', cf: 12200, bw: 30, amp: -88, sat: 'Satellite B'},
-    ];
-
+    const { ewok } = useEwokContext();
     const [signals, setSignals] = useState<signals[]>([]);
     
-    
+        
     useEffect(() => {
-        if( signals.length == 0 ) {
-            let tmpSignals = [
-                {team: "All", x: 12000, y: -100, sat: 'Satellite A'},
-                {team: "All", x: 12000, y: -100, sat: 'Satellite B'},
-                {team: "All", x: 12000, y: -100, sat: 'Satellite C'}];
+        let tmpSignals = [...signals];
+        let tmpSatEnv = [...ewok.satEnv];
 
-            satEnv.sort((a, b) => a.cf - b.cf).map(signal => {
-                tmpSignals.push({team: signal.team, x: signal.cf - signal.bw / 2, y: signal.amp, sat: signal.sat});
+        tmpSignals = [
+            {team: "All", x: 12000, y: -100, sat: 'Satellite A'},
+            {team: "All", x: 12000, y: -100, sat: 'Satellite B'},
+            {team: "All", x: 12000, y: -100, sat: 'Satellite C'}];
+        
+        if ( tmpSatEnv.length > 0 ) {
+            tmpSatEnv.sort((a, b) => a.cf - b.cf).map(signal => {
+                tmpSignals.push({team: signal.team, x: signal.cf - signal.bw / 2, y: signal.power, sat: signal.sat});
                 tmpSignals.push({team: signal.team, x: signal.cf + signal.bw / 2, y: -100, sat: signal.sat});
             });
-            
-            [{team: "All", x: 13000, y: -100, sat: 'Satellite A'},
-             {team: "All", x: 13000, y: -100, sat: 'Satellite B'},
-             {team: "All", x: 13000, y: -100, sat: 'Satellite C'}].forEach(signal => {
-                tmpSignals.push(signal)
-             });
-
-            setSignals(tmpSignals);
         };
-    }, []);
+        [{team: "All", x: 13000, y: -100, sat: 'Satellite A'},
+            {team: "All", x: 13000, y: -100, sat: 'Satellite B'},
+            {team: "All", x: 13000, y: -100, sat: 'Satellite C'}].forEach(signal => {
+                tmpSignals.push(signal)
+            });
 
-    useEffect(() => {
-        console.log(signals.filter(signal => signal.team == "Instructor").map(x => x.x));
-    }, [signals]);
+        setSignals(tmpSignals);  
+    }, [ewok]);
     
     const SatEnvPlot = ({ sat } : { sat: string}) => {
         return(
@@ -112,3 +76,18 @@ const Satellites = () => {
 };
 
 export default Satellites;
+
+interface satEnv {
+    team: string, 
+    cf: number, 
+    bw: number, 
+    power: number, 
+    sat: string
+};
+
+interface signals {
+    team?: string;
+    x?: number;
+    y?: number;
+    sat?: string;
+};
