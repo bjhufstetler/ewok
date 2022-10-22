@@ -9,7 +9,7 @@ const Satellites = () => {
         
     useEffect(() => {
         let tmpSignals = [...signals];
-        let tmpSatEnv = [...ewok.satEnv];
+        let tmpSatEnv = [...ewok.satEnv].filter(x => x.server == ewok.server);
 
         tmpSignals = [
             {team: "All", x: 12000, y: -100, sat: 'Satellite A'},
@@ -32,24 +32,29 @@ const Satellites = () => {
     }, [ewok]);
     
     const SatEnvPlot = ({ sat } : { sat: string}) => {
+
+        let plotData : Array<any> = [
+            {team: "Victor", color: "#fa7970"},
+            {team: "Whiskey", color: "#faa356"},
+            {team: "Xray", color: "#7ce38b"},
+            {team: "Yankee", color: "#a2d2fb"},
+            {team: "Zulu", color: "#cea5fb"},
+            {team: "Instructor", color: "white"},].map( team => {
+                const teamSignals = signals?.filter(signal => (signal.team == team.team || signal.team == "All") && signal.sat == sat);
+                return({
+                    x: teamSignals.map(signal => signal.x) as Array<number>,
+                    y: teamSignals.map(signal => signal.y) as Array<number>,
+                    type: 'scatter', mode: 'lines', name: team.team,
+                    line: { shape: 'hv', width: 1, color: team.color }
+                });
+            })
+        
         return(
             <>
                 <div>{sat}</div>
                 <div>
                     <Plot
-                        data = {[{team: "Victor", color: "#fa7970"},
-                                 {team: "Whiskey", color: "#faa356"},
-                                 {team: "Xray", color: "#7ce38b"},
-                                 {team: "Yankee", color: "#a2d2fb"},
-                                 {team: "Zulu", color: "#cea5fb"},
-                                 {team: "Instructor", color: "white"},].map( team => (
-                            {
-                                x: signals.filter(signal => (signal.team == team.team || signal.team == "All") && signal.sat == sat).map(signal => signal.x) as Array<number>,
-                                y: signals.filter(signal => (signal.team == team.team || signal.team == "All") && signal.sat == sat).map(signal => signal.y) as Array<number>,
-                                type: 'scatter', mode: 'lines', name: team.team,
-                                line: { shape: 'hv', width: 1, color: team.color }
-                            }
-                        ))}
+                        data = {plotData}
                         layout = { 
                             {
                                 width: 1200, height: 240, plot_bgcolor: "#2e292b", paper_bgcolor: "#2e292b",

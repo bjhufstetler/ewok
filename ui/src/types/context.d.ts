@@ -5,6 +5,7 @@ interface IEwokContext {
         server: string,
         satEnv: [{
             id: number,
+            server: string,
             conn: string,
             team: string, 
             cf: number, 

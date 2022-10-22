@@ -43,6 +43,16 @@ const SignalDetails = () => {
     
     const handleClickSaveScenario = () => {
         //TODO: Post to db
+        navigator.clipboard.writeText(JSON.stringify(equipment))
+        .then(() => alert("Scenario data saved to clipboard."))
+    }
+    
+    const handleClickLoadScenario = () => {
+        let tmpEquipmentString : string | null = prompt("Paste saved sceanrio data here then click submit");
+        let tmpEquipment : Array<equipment> = JSON.parse(tmpEquipmentString!);
+        tmpEquipment.forEach(x => x.server = ewok.server)
+        const tmpEwok = {...ewok, equipment: tmpEquipment};
+        tmpEquipment ? setEwok(tmpEwok) : alert("Unable to load from provided data.")
     }
 
     const handleClickDelete = () => {
@@ -65,9 +75,10 @@ const SignalDetails = () => {
     
     const handleClickSave = () => {
         //TODO: patch to db
-        const tmpEquipment = [...equipment];
+        const tmpEquipment : Array<equipment> = [...equipment];
         const index = tmpEquipment.map(x => x.id).indexOf(Number(selection));
         tmpEquipment[index] = {...signal};
+        
         let tmpEwok = {...ewok, equipment: tmpEquipment};
         setEwok(tmpEwok)
     }
@@ -157,7 +168,7 @@ const SignalDetails = () => {
 
                 let tmpSatEnv = [...ewok.satEnv];
                 const maxID = Math.max(...tmpSatEnv.map(x => x.id))
-                tmpSatEnv.push({id: maxID + 1, conn: groupSignal.conn, team: 'Instructor', cf: groupSignal.cf, bw: groupSignal.bw, power: groupSignal.power, sat: groupSignal.sat})
+                tmpSatEnv.push({id: maxID + 1, server: ewok.server, conn: groupSignal.conn, team: 'Instructor', cf: groupSignal.cf, bw: groupSignal.bw, power: groupSignal.power, sat: groupSignal.sat})
                 
                 let tmpEwok = {...ewok, satEnv: tmpSatEnv, equipment: tmpEquipment};
                 setEwok(tmpEwok);
@@ -191,7 +202,8 @@ const SignalDetails = () => {
                 {groups.map((group, groupID) => (
                     <GroupComponent key={groupID} group={ group } />
                 ))}
-                <button>Save Scenario</button>
+                <button onClick={() => handleClickSaveScenario()}>Save Scenario</button>
+                <button onClick={() => handleClickLoadScenario()}>Load Scenario</button>
             </div>
             <div className="signalDetails">
                 <div>
