@@ -14,10 +14,23 @@ const SignalDetails = () => {
     const [equipment, setEquipment] = useState<equipment[]>([]);
     const [groups, setGroups] = useState<string[]>([]);
     const [selection, setSelection] = useState<number>(-1);
-    const [signal, setSignal] = useState<equipment>({id: 0, conn: '', server: '', team: '', unit_type: '', unit_name: '', cf: 0, bw: 0, power: 0, sat: '', feed: '', active: true});
+    const [signal, setSignal] = useState<equipment>({
+        id: 0,
+        conn: '',
+        server: '',
+        team: '',
+        unit_type: '',
+        unit_name: '',
+        cf: 0,
+        bw: 0,
+        power: 0,
+        sat: '',
+        feed: '',
+        active: true
+    });
 
     useEffect(() => {
-        const tmpEquipment = ewok.equipment.filter(team => team.team == "Instructor");
+        const tmpEquipment= ewok.equipment.filter(team => team.team == "Instructor" && team.server == ewok.server);
         setEquipment(tmpEquipment);
     }, [ewok])
     
@@ -27,27 +40,40 @@ const SignalDetails = () => {
     }, [equipment])
     
     useEffect(() => {
-        const tmpSignal = [...equipment].filter(x => x.id == selection);
+        const tmpSignal= [...equipment].filter(x => x.id == selection);
         setSignal(tmpSignal[0])
     }, [selection])
     
-    const handleClickPlus = () => {
+    const handleClickPlus: Function = () => {
         //TODO: Post to db
         let tmpEquipment = [...equipment];
         let maxID = Math.max(...tmpEquipment.map(x => x.id));
         if(!isFinite(maxID)) maxID = 1;
-        tmpEquipment.push({id: maxID + 1, conn: makeConn(), server: ewok.server, team: ewok.team, unit_type: 'New Group', unit_name: 'New Signal', cf: 0, bw: 0, power: 0, sat: 'Satellite A', feed: 'Feed 01', active: false})
+        tmpEquipment.push({
+            id: maxID + 1,
+            conn: makeConn(),
+            server: ewok.server,
+            team: ewok.team,
+            unit_type: 'New Group',
+            unit_name: 'New Signal',
+            cf: 0,
+            bw: 0,
+            power: 0,
+            sat: 'Satellite A',
+            feed: 'Feed 01',
+            active: false
+        })
         let tmpEwok = {...ewok, equipment: tmpEquipment};
         setEwok(tmpEwok)
     }
     
-    const handleClickSaveScenario = () => {
+    const handleClickSaveScenario: Function = () => {
         //TODO: Post to db
         navigator.clipboard.writeText(JSON.stringify(equipment))
         .then(() => alert("Scenario data saved to clipboard."))
     }
     
-    const handleClickLoadScenario = () => {
+    const handleClickLoadScenario: Function = () => {
         let tmpEquipmentString : string | null = prompt("Paste saved sceanrio data here then click submit");
         let tmpEquipment : Array<equipment> = JSON.parse(tmpEquipmentString!);
         tmpEquipment.forEach(x => x.server = ewok.server)
@@ -55,7 +81,7 @@ const SignalDetails = () => {
         tmpEquipment ? setEwok(tmpEwok) : alert("Unable to load from provided data.")
     }
 
-    const handleClickDelete = () => {
+    const handleClickDelete: Function = () => {
         //TODO: Delete from db
         if(selection != -1){
             const tmpEquipment = [...equipment];
@@ -68,59 +94,96 @@ const SignalDetails = () => {
         }
     }
     
-    const handleClickRevert = () => {
+    const handleClickRevert: Function = () => {
         const tmpSignal = equipment.filter(x => x.id == selection);
         setSignal(tmpSignal[0])
     }
     
-    const handleClickSave = () => {
+    const handleClickSave: Function = () => {
         //TODO: patch to db
         const tmpEquipment : Array<equipment> = [...equipment];
         const index = tmpEquipment.map(x => x.id).indexOf(Number(selection));
-        tmpEquipment[index] = {...signal};
-        
-        let tmpEwok = {...ewok, equipment: tmpEquipment};
-        setEwok(tmpEwok)
+        const tmpActive : boolean = tmpEquipment[index].active;
+        tmpEquipment[index] = {...signal, active: tmpActive};
+
+        let tmpsatEnv = [...ewok.satEnv];
+        const envIndex = tmpsatEnv.map(x => x.conn).indexOf(signal.conn);
+        if(tmpActive) tmpsatEnv[envIndex] = {
+            ...tmpsatEnv[envIndex],
+            cf: signal.cf,
+            bw: signal.bw,
+            power: signal.power,
+            sat: signal.sat
+        };
+        //tmpsatEnv.splice(envIndex, 1);
+                
+        let tmpEwok = {
+            ...ewok,
+            satEnv: tmpsatEnv,
+            equipment: tmpEquipment
+        };
+        setEwok(tmpEwok);
     }
     
     const handleUnitTypeChange = ( value : string) => {
-        let tmpSignal = {...signal, unit_type: value};
+        let tmpSignal = {
+            ...signal,
+            unit_type: value
+        };
         setSignal(tmpSignal);
     }
     
     const handleUnitNameChange = ( value : string) => {
-        let tmpSignal = {...signal, unit_name: value};
+        let tmpSignal = {
+            ...signal,
+            unit_name: value
+        };
         setSignal(tmpSignal);
     }
     
     const handleCFChange = ( value : string) => {
         let tmpValue = null;
         if(!isNaN(Number(value))) tmpValue = value;
-        let tmpSignal = {...signal, cf: Number(tmpValue)};
+        let tmpSignal = {
+            ...signal,
+            cf: Number(tmpValue)
+        };
         setSignal(tmpSignal);
     }
     
     const handleBWChange = ( value : string) => {
         let tmpValue = null;
         if(!isNaN(Number(value))) tmpValue = value;
-        let tmpSignal = {...signal, bw: Number(tmpValue)};
+        let tmpSignal = {
+            ...signal,
+            bw: Number(tmpValue)
+        };
         setSignal(tmpSignal);
     }
     
     const handlePowerChange = ( value : string) => {
         let tmpValue = null;
         if(!isNaN(Number(value))) tmpValue = -1 * Math.abs(Number(value));
-        let tmpSignal = {...signal, power: Number(tmpValue)};
+        let tmpSignal = {
+            ...signal,
+            power: Number(tmpValue)
+        };
         setSignal(tmpSignal);
     }
     
     const handleSatChange = ( value : string) => {
-        let tmpSignal = {...signal, sat: value};
+        let tmpSignal = {
+            ...signal,
+            sat: value
+        };
         setSignal(tmpSignal);
     }
     
     const handleFeedChange = ( value : string) => {
-        let tmpSignal = {...signal, feed: value};
+        let tmpSignal = {
+            ...signal,
+            feed: value
+        };
         setSignal(tmpSignal);
     }
 
@@ -154,23 +217,32 @@ const SignalDetails = () => {
                 const index = tmpEquipment.map(x => x.id).indexOf(groupSignal.id);
                 tmpEquipment[index].active = false;
                 
-                let tmpSatEnv = [...ewok.satEnv];
-                const envIndex = tmpSatEnv.map(x => x.conn).indexOf(groupSignal.conn);
+                let tmpsatEnv = [...ewok.satEnv];
+                const envIndex = tmpsatEnv.map(x => x.conn).indexOf(groupSignal.conn);
                 
-                tmpSatEnv.splice(envIndex, 1);
+                tmpsatEnv.splice(envIndex, 1);
                 
-                let tmpEwok = {...ewok, satEnv: tmpSatEnv, equipment: tmpEquipment};
+                let tmpEwok = {...ewok, satEnv: tmpsatEnv, equipment: tmpEquipment};
                 setEwok(tmpEwok);
             } else {
                 let tmpEquipment = [...equipment];
                 const index = tmpEquipment.map(x => x.id).indexOf(groupSignal.id);
                 tmpEquipment[index].active = true;
 
-                let tmpSatEnv = [...ewok.satEnv];
-                const maxID = Math.max(...tmpSatEnv.map(x => x.id))
-                tmpSatEnv.push({id: maxID + 1, server: ewok.server, conn: groupSignal.conn, team: 'Instructor', cf: groupSignal.cf, bw: groupSignal.bw, power: groupSignal.power, sat: groupSignal.sat})
+                let tmpsatEnv = [...ewok.satEnv];
+                const maxID = Math.max(...tmpsatEnv.map(x => x.id))
+                tmpsatEnv.push({
+                    id: maxID + 1,
+                    server: ewok.server,
+                    conn: groupSignal.conn,
+                    team: 'Instructor',
+                    cf: groupSignal.cf,
+                    bw: groupSignal.bw,
+                    power: groupSignal.power,
+                    sat: groupSignal.sat,
+                    stage: "ULRF"})
                 
-                let tmpEwok = {...ewok, satEnv: tmpSatEnv, equipment: tmpEquipment};
+                let tmpEwok = {...ewok, satEnv: tmpsatEnv, equipment: tmpEquipment};
                 setEwok(tmpEwok);
             }
         }

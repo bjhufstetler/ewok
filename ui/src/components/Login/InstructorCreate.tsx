@@ -1,17 +1,21 @@
 import { useNavigate } from "react-router-dom";
+import { useEwokContext } from '../../context/EwokContext';
 
 const InstructorCreate = () => {
     const navigate = useNavigate();
+    const { ewok, setEwok } = useEwokContext();
+    const handleClickContinue = () => {
+        //TODO: create new server
+    }
+
     return(
         <div className="Card">
             <div>
-                SCENARIO
-                <select id="scenario">
-                    <option value="new">New</option>
-                    <option value="savedsceanario1">Save 1</option>
-                </select>
+                <h1>WARNING!</h1>
+                <p>Clicking 'CONTINUE' will create a new server.</p>
+                <p>This cannot be undone.</p> 
             </div>
-            <button onClick={() => navigate("/instructor")}>START</button>
+            <button onClick={() => navigate("/instructor")}>CONTINUE</button>
             <button onClick={() => navigate("/instructorLogin")}>BACK</button>
         </div>
     )
