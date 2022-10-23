@@ -94,9 +94,10 @@ const Satellites = () => {
                             {
                                 width: 1200, height: 240, plot_bgcolor: "#2e292b", paper_bgcolor: "#2e292b",
                                 margin: { l: 55, r: 10, b: 40, t: 10, pad: 1 },
-                                xaxis: { title: 'MHz', color: 'white' , range: [lb, ub], domain: [0, 1] },
+                                xaxis: { title: 'MHz', color: 'white' , range: [lb, ub] },
                                 yaxis: { title: 'dB', color: 'white' , fixedrange: true, range: [-101, -83] },
-                                font: { color: 'white'}, legend: { y: 0 }
+                                font: { color: 'white'}, legend: { y: 0 },
+                                modebar: {remove: ['zoomIn2d', 'zoomOut2d', 'resetScale2d', 'toImage', 'lasso2d', 'select2d']}
                             }   
                         }
                         
@@ -116,15 +117,6 @@ const Satellites = () => {
 };
 
 export default Satellites;
-
-interface signal {
-    team: string, 
-    cf: number, 
-    bw: number, 
-    power: number, 
-    sat: string,
-    stage: string
-};
 
 interface signals {
     team?: string;

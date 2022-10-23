@@ -1,0 +1,13 @@
+.studentPage {
+    position: fixed;
+    left: 0;
+    top: 120px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.SpecA {
+    border: 1px solid black;
+    background-color: rgb(86, 87, 90);
+    padding: 20px;
+}
