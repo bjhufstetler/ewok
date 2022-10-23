@@ -240,6 +240,7 @@ const SignalDetails = () => {
                     bw: groupSignal.bw,
                     power: groupSignal.power,
                     sat: groupSignal.sat,
+                    feed: groupSignal.feed,
                     stage: "ULRF"})
                 
                 let tmpEwok = {...ewok, satEnv: tmpsatEnv, equipment: tmpEquipment};

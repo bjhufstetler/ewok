@@ -21,6 +21,7 @@ type RFEnv = [{
     bw: number, 
     power: number, 
     sat: string,
+    feed: string,
     stage: string
 }];
 
