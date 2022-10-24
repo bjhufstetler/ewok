@@ -1,14 +1,29 @@
 interface IEwokContext {
-    setEwok: any,
     ewok: {    
         team: string,
         server: string,
-        satEnv: RFEnv,
-        equipment: equipment
-    };
+        baseURL: string,
+    },
+    setEwok: any,
 };
 
+interface IEquipmentContext {
+    equipment: equipment,
+    setEquipment: any,
+}
+
+interface ISatEnvContext {
+    satEnv: RFEnv,
+    setSatEnv: any,
+}
+
 type EwokProviderProps = {
+    children?: React.ReactNode;
+}
+type EquipmentProviderProps = {
+    children?: React.ReactNode;
+}
+type SatEnvProviderProps = {
     children?: React.ReactNode;
 }
 

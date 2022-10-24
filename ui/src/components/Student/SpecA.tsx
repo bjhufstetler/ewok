@@ -26,6 +26,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         feed: '', 
         active: true
     });
+
     useEffect(() => {
         const tmpSpecAState = ewok.equipment.filter(x => 
             x.team == ewok.team && 
@@ -36,20 +37,27 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         
         setSpecAState(tmpSpecAState)
     }, [ewok]);
+
     const handleChangeCF = (e: any) => {
+        let tmpValue = 0;
+        if(e.target.value > 0) tmpValue = e.target.value;
         let tmpSpecAState = {
             ...specAState,
             cf: Number(e.target.value)
         };
         setSpecAState(tmpSpecAState);
     };
+
     const handleChangeBW = (e: any) => {
+        let tmpValue = 0;
+        if(e.target.value > 0) tmpValue = e.target.value;
         let tmpSpecAState = {
             ...specAState,
-            bw: Number(e.target.value)
+            bw: Number(tmpValue)
         };
         setSpecAState(tmpSpecAState);
     };
+
     const handleClickSet = () => {
         let tmpEquipment = ewok.equipment;
         const equipmentIndex = tmpEquipment.map(x => x.id).indexOf(specAState.id);
@@ -61,6 +69,11 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     };
 
     const SpecAPlot = () => {
+        const randn_bm = () => {
+            let u = 1 - Math.random(); //Converting [0,1) to (0,1)
+            let v = Math.random();
+            return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+        }
         const plotXRange = [ewokSpecA?.cf - ewokSpecA?.bw / 2, ewokSpecA?.cf + ewokSpecA?.bw / 2]
         const plotX : Array<number> = Array(1000).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0])
         let plotY : Array<number> = [];
@@ -70,17 +83,17 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                 env.cf - env.bw / 2 <= x &&
                 env.cf + env.bw / 2 >= x).map(signal => signal.power)
             signalPower.push(-100)
-            plotY.push(Math.max(...signalPower) - 1 + 2 * Math.random());
+            plotY.push(Math.max(...signalPower) - 1 + .5 * randn_bm());
         })
         const plotData = [{
             x: plotX,
-            y: plotY
+            y: plotY,
+            line: {color: 'white', width: .5}
         }];
         /*
             TODO: Max hold, saved states, antenna selection, rf/if, ul/dl, updates every 1/nth of a second
             consider putting this in context.
         */
-        console.log(specAState)
         return(
             <>
                 <div>Spectrum Analyzer {unit_name}</div>
@@ -97,7 +110,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                                     range: [ewokSpecA?.cf - ewokSpecA?.bw / 2, ewokSpecA?.cf + ewokSpecA?.bw / 2],
                                     fixedrange: true
                                 },
-                                yaxis: { title: 'dB', color: 'white', fixedrange : true, range: [-101, -83]},
+                                yaxis: { title: 'dB', color: 'white', fixedrange : true, range: [-103, -83]},
                                 font: { color: 'white'}, legend: { y: 0 },
                                 modebar: {remove: ["autoScale2d", 'zoom2d', 'zoomIn2d', 'zoomOut2d', 'pan2d', 'resetScale2d', 'toImage']},
                                 dragmode: 'select'

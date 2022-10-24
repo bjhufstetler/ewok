@@ -1,16 +1,25 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useEwokContext } from "../../context/EwokContext";
 
 const StudentLogin = () => {
     const navigate = useNavigate();
     const { ewok, setEwok } = useEwokContext();
-    const [server, setServer] = useState<string>("");
+    const [server, setServer] = useState<string>('');
+    const [serverList, setServerList] = useState([]);
+    useEffect(() => {
+        fetch('http://localhost:8080/server')
+            .then(res => res.json())
+            .then(servers => {
+                console.log(servers)
+                setServerList(servers)
+            });
+    }, [])
     const handleChangeServer = (e: any) => {
         setServer(e.target.value)
     }
     const handleClickJoin = () => {
-        const tmpEwok = {...ewok, server: server}
+        const tmpEwok = {...ewok, team: 'Instructor', server: server}
         setEwok(tmpEwok)
         navigate("/instructor")
     }
@@ -18,12 +27,13 @@ const StudentLogin = () => {
         <div className="Card">
             <div>
                 SERVER ID
-                <select onChange={(e) => handleChangeServer(e)}>
+                <select onChange={(e) => handleChangeServer(e)} value={server}>
                     {// TODO: Get server options from db
                     }
-                    <option disabled selected></option>
-                    <option value="0a2b">'0a2b'</option>
-                    <option value="0a2c">'0a2c'</option>
+                    <option disabled value=''></option>
+                    {serverList.map((servers, id) => (
+                        <option key={id} value={servers}>{servers}</option>
+                    ))}
                 </select>
             </div>
             

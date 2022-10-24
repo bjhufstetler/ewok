@@ -1,14 +1,13 @@
 import Plot from 'react-plotly.js';
 import { useEffect, useState } from 'react';
-import { useEwokContext } from '../../context/EwokContext';
+import { useSatEnvContext } from '../../context/EwokContext';
 
 const Satellites = () => {
-    const { ewok } = useEwokContext();
+    const { satEnv } = useSatEnvContext();
     const [signals, setSignals] = useState<signals[]>([]);
     
-        
     useEffect(() => {
-        let tmpSatEnv = [...ewok.satEnv].filter(x => x.server == ewok.server && x.stage == "ULRF");
+        let tmpSatEnv = [...satEnv].filter(x => x.stage == "ULRF");
 
         let tmpSignals = [
             {team: "All", x: 5000, y: -100, sat: 'Satellite A'},
@@ -29,7 +28,11 @@ const Satellites = () => {
         });
 
         setSignals(tmpSignals);  
-    }, [ewok]);
+    }, [satEnv]);
+
+    useEffect(() => {
+
+    })
     
     const SatEnvPlot = ({ sat, lb, ub } : { sat: string, lb: number, ub: number}) => {
         const teamData : Array<{team: string, color: string}> = [
@@ -51,7 +54,7 @@ const Satellites = () => {
             });
         });
 
-        ewok.satEnv.filter(signal => signal.sat == sat && signal.server == ewok.server).map(signal => {
+        satEnv.filter((signal : any) => signal.sat == sat ).map((signal : any) => {
             const teamIndex = teamData.map(x => x.team).indexOf(signal.team);
             const teamColor = teamData[teamIndex].color;
             plotData.push({
@@ -97,7 +100,7 @@ const Satellites = () => {
                                 xaxis: { title: 'MHz', color: 'white' , range: [lb, ub] },
                                 yaxis: { title: 'dB', color: 'white' , fixedrange: true, range: [-101, -83] },
                                 font: { color: 'white'}, legend: { y: 0 },
-                                modebar: {remove: ['zoomIn2d', 'zoomOut2d', 'resetScale2d', 'toImage', 'lasso2d', 'select2d']}
+                                modebar: {remove: ['zoomIn2d', 'zoomOut2d', 'resetScale2d', 'toImage', 'lasso2d']}
                             }   
                         }
                         
