@@ -1,0 +1,51 @@
+.specAPlot {
+    align-self: center;
+    width: 800px;
+}
+.SpecAControls {
+    display: grid;
+    width: 800px;
+    grid-template-columns: 1fr 1fr;
+}
+.freqValues {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 100px 50px 50px 50px 50px 200px 50px 50px 50px 50px 100px;
+}
+.freqValues * {
+    margin: 0px 5px 5px 0px;
+}
+.freqValues :first-child {
+    text-align: left;
+}
+.freqValues :last-child {
+    text-align: right
+}
+
+.inputControl {
+    grid-row: span 2;
+    border: 1px solid black;
+    margin-right: 5px;
+    padding: 5px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+}
+.unit {
+    text-align: left;
+    margin-left: 10px;
+}
+.label {
+    text-align: right;
+    margin-right: 10px;
+}
+
+.traceControl {
+    margin: 0px 0px 0px 60px;
+    border: 1px solid black;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.traceControl * {
+    margin: 5px 5px 5px 50px
+}

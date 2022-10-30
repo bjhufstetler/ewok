@@ -6,8 +6,10 @@
     grid-template-columns: 1fr 1fr;
 }
 
-.SpecA {
+.SpecA, .Antenna, .Receiver, .Transmitter {
     border: 1px solid black;
     background-color: rgb(86, 87, 90);
     padding: 20px;
+    margin: 5px;
+    border-radius: 10px;
 }

@@ -1,10 +1,11 @@
+import { useEffect, useState } from "react";
+
 export const CRUD : Function = ({ method, path, data} : {method: string, path: string, data: any}) => {
     // method: POST, PATCH, DELETE
     const id = data.id ? data.id : '';
-    delete(data['id']);
+    //delete(data['id']);
     const baseURL = 'http://localhost:8080/table?';
-    console.log(method, path, data)
-    fetch(`${baseURL}table=${path}&id=${id}`, {
+    fetch(path, {
         method: method,
         headers: {
             'Accept': 'application/json',
@@ -17,6 +18,6 @@ export const CRUD : Function = ({ method, path, data} : {method: string, path: s
             return response.json();
         } else {
             throw new Error('Cannot convert response to json');
-        };
-    });
+        }
+    })
 };

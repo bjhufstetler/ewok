@@ -1,95 +1,314 @@
-import { useEwokContext } from "../../context/EwokContext";
+import { useEwokContext, useEquipmentContext, useSatEnvContext } from "../../context/EwokContext";
 import { useEffect, useState } from 'react';
-import './StudentPage.css'
+import './StudentPage.css';
+import './SpecA.css';
 import Plot from 'react-plotly.js';
+import { RuxButton, RuxSwitch } from "@astrouxds/react";
 
 const SpecA = ({ unit_name } : { unit_name: string}) => {
-    const { ewok, setEwok } = useEwokContext();
-    const ewokSpecA = ewok.equipment.filter(x => 
-        x.team == ewok.team && 
-        x.server == ewok.server && 
-        x.unit_type == "SpecA" && 
-        x.unit_name == unit_name
-        )[0];
 
-    const [specAState, setSpecAState] = useState({
-        id: 0, 
-        conn: '', 
-        server: '', 
-        team: '', 
-        unit_type: 'SpecA', 
-        unit_name: '1', 
-        cf: 6500, 
-        bw: 1000, 
-        power: 0, 
-        sat: 'ULRF', 
-        feed: '', 
-        active: true
-    });
+    // Import [ewok] for server/team information
+    const { ewok } = useEwokContext();
+    // Import [equipment] for SpecA settings
+    const { equipment, setEquipment } = useEquipmentContext();
+    // Import [satenv] for signal information 
+    const { satEnv, setSatEnv } = useSatEnvContext();
 
+
+    const [markerX, setMarkerX] = useState<number>(500);
+
+    const [plotTimer, setPlotTimer] = useState<boolean>(false);
     useEffect(() => {
-        const tmpSpecAState = ewok.equipment.filter(x => 
-            x.team == ewok.team && 
-            x.server == ewok.server && 
+        setTimeout(() => {
+            //setSatEnv([...satEnv]);
+            setPlotTimer(!plotTimer);
+        }, 100);
+    }, [plotTimer]);
+
+    const [dataTimer, setDataTimer] = useState<boolean>(false);
+    useEffect(() => {
+        setTimeout(() => {
+            fetch(`${ewok.baseURL}/equipment?server=${ewok.server}&team=${ewok.team}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Cannot convert response to json');
+                    };
+                })
+                .then(data => {
+                    setEquipment(data)
+                });
+            fetch(`${ewok.baseURL}/satEnv?server=${ewok.server}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Cannot convert response to json');
+                    };
+                })
+                .then(data => {
+                    setSatEnv(data)
+                });
+            setDataTimer(!dataTimer);
+        }, 1000);
+    }, [dataTimer])
+
+    // Hold settings in state noting that only one piece of equipment is being used
+    const tmpSettings : equipment = {
+        id: -1,
+        conn: '',
+        server: '',
+        team: '',
+        unit_type: '',
+        unit_name: '',
+        cf: 17500,
+        bw: 30000,
+        power: 0,
+        sat: '',
+        feed: '',
+        active: true
+    }
+    const [ settings, setSettings ] = useState<equipment>(tmpSettings);
+    // Declare settingState for holding interim settings
+    const [settingState, setSettingState] = useState<equipment>(tmpSettings);
+
+    // Update settings whenever equipment or ewok changes
+    useEffect(() => {
+        const tmpSettings = [...equipment]?.filter(x => 
             x.unit_type == "SpecA" && 
             x.unit_name == unit_name
             )[0];
         
-        setSpecAState(tmpSpecAState)
-    }, [ewok]);
+        setSettings(tmpSettings)
+        //setSettingState(tmpSettings)
+    }, [ewok, equipment]);
+
 
     const handleChangeCF = (e: any) => {
         let tmpValue = 0;
         if(e.target.value > 0) tmpValue = e.target.value;
-        let tmpSpecAState = {
-            ...specAState,
-            cf: Number(e.target.value)
+        let tmpSettingState = {
+            ...settingState,
+            cf: Number(tmpValue)
         };
-        setSpecAState(tmpSpecAState);
+        setSettingState(tmpSettingState);
     };
 
     const handleChangeBW = (e: any) => {
         let tmpValue = 0;
         if(e.target.value > 0) tmpValue = e.target.value;
-        let tmpSpecAState = {
-            ...specAState,
+        let tmpSettingState = {
+            ...settingState,
             bw: Number(tmpValue)
         };
-        setSpecAState(tmpSpecAState);
+        setSettingState(tmpSettingState);
     };
 
     const handleClickSet = () => {
-        let tmpEquipment = ewok.equipment;
-        const equipmentIndex = tmpEquipment.map(x => x.id).indexOf(specAState.id);
-        tmpEquipment[equipmentIndex] = specAState;
-        setEwok({
-            ...ewok,
-            equipment: tmpEquipment
+        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpEquipment = {
+            ...equipment[equipmentIndex],
+            cf: settingState.cf,
+            bw: settingState.bw
+        }
+        fetch(`${ewok.baseURL}/table?table=equipment`, {
+            method: 'PATCH', 
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tmpEquipment)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Cannot convert response to json');
+            };
+        })
+        .then(data => {
+            setEquipment(data)
+            setY(initY)
+        });
+    };
+    const initY = Array(1000).fill(-103);
+    const initYMax = Array(1000).fill(-110);
+    const [y, setY] = useState<any>(initY)
+    const [maxY, setMaxY] = useState<any>(initYMax);
+    const [max, setMax] = useState<boolean>(false);
+    const handleClickMax = () => {
+        setMaxY(initYMax);
+        setMax(!max);
+    };
+    const handleClickResetMax = () => {
+        setMaxY(initYMax);
+        setMax(true);
+    };
+
+    const [lockY, setLockY] = useState<any>(initYMax);
+    const [lock, setLock] = useState<boolean>(false);
+    const handleClickLock = () => {
+        setLockY([...y]);
+        setLock(!lock);
+    };
+    const handleClickResetLock = () => {
+        setLockY([...y]);
+        setLock(true);
+    }
+    useEffect(() => {
+        setLock(false);
+        setMaxY([...y]);
+    }, [y])
+        
+    const handleClickLeft = () => {
+        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpEquipment = {
+            ...equipment[equipmentIndex],
+            cf: Math.round(1000 * (settings.cf - settings.bw / 10)) / 1000
+        }
+        fetch(`${ewok.baseURL}/table?table=equipment`, {
+            method: 'PATCH', 
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tmpEquipment)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Cannot convert response to json');
+            };
+        })
+        .then((data: Array<equipment>) => {
+            setEquipment(data);
+            setY(initY);
+
+        });
+    };
+    const handleClickRight = () => {
+        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpEquipment = {
+            ...equipment[equipmentIndex],
+            cf: Math.round(1000 * (settings.cf + settings.bw / 10)) / 1000
+        }
+        fetch(`${ewok.baseURL}/table?table=equipment`, {
+            method: 'PATCH', 
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tmpEquipment)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Cannot convert response to json');
+            };
+        })
+        .then(data => {
+            setEquipment(data);
+            setY(initY);
+        });
+    };
+    const handleClickZoomIn = () => {
+        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpEquipment = {
+            ...equipment[equipmentIndex],
+            bw: Math.round(settings.bw * .5 * 1000) / 1000
+        }
+        fetch(`${ewok.baseURL}/table?table=equipment`, {
+            method: 'PATCH', 
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tmpEquipment)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Cannot convert response to json');
+            };
+        })
+        .then(data => {
+            setEquipment(data);
+            setY(initY);
+        });
+    };
+    const handleClickZoomOut = () => {
+        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpEquipment = {
+            ...equipment[equipmentIndex],
+            bw: Math.round(settings.bw * 1.5 * 1000) / 1000
+        }
+        fetch(`${ewok.baseURL}/table?table=equipment`, {
+            method: 'PATCH', 
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tmpEquipment)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Cannot convert response to json');
+            };
+        })
+        .then(data => {
+            setEquipment(data);
+            setY(initY);
         });
     };
 
+    const randn_bm = () => {
+        let u = 1 - Math.random(); //Converting [0,1) to (0,1)
+        let v = Math.random();
+        return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+    }
+
     const SpecAPlot = () => {
-        const randn_bm = () => {
-            let u = 1 - Math.random(); //Converting [0,1) to (0,1)
-            let v = Math.random();
-            return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
-        }
-        const plotXRange = [ewokSpecA?.cf - ewokSpecA?.bw / 2, ewokSpecA?.cf + ewokSpecA?.bw / 2]
+        const plotTimerObserver = plotTimer;
+        const plotXRange = [settings?.cf - settings?.bw / 2, settings?.cf + settings?.bw / 2]
         const plotX : Array<number> = Array(1000).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0])
-        let plotY : Array<number> = [];
-        plotX.map(x => {
-            let signalPower = ewok.satEnv.filter(env => 
+        let plotY : Array<number> = y;
+        let tmpMaxY : Array<number> = maxY;
+        plotX.map((x, xid) => {
+            let signalPower = satEnv.filter(env => 
                 env.server == ewok.server &&
                 env.cf - env.bw / 2 <= x &&
                 env.cf + env.bw / 2 >= x).map(signal => signal.power)
             signalPower.push(-100)
-            plotY.push(Math.max(...signalPower) - 1 + .5 * randn_bm());
+            let tmpY = Math.max(...signalPower);
+            const variability = y[xid] > -100 ? .3 : .5
+            tmpY = tmpY - .9 * (tmpY - y[xid]) - Math.abs(variability * randn_bm()) + .2;
+            plotY[xid] = tmpY;
+            tmpMaxY[xid] = Math.max(tmpY, tmpMaxY[xid]);
         })
-        const plotData = [{
-            x: plotX,
-            y: plotY,
-            line: {color: 'white', width: .5}
-        }];
+        const plotData = [
+            {
+                x: plotX,
+                y: plotY,
+                line: {color: '#f6f955', width: .5}
+            },
+            {
+                x: plotX,
+                y: tmpMaxY,
+                line: {color: '#5ef568', width: max ? .5 : 0}
+            }
+            ,
+            {
+                x: plotX,
+                y: lockY,
+                line: {color: '#5eb1f5', width: lock ? .5 : 0}
+            }
+        ];
         /*
             TODO: Max hold, saved states, antenna selection, rf/if, ul/dl, updates every 1/nth of a second
             consider putting this in context.
@@ -97,7 +316,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         return(
             <>
                 <div>Spectrum Analyzer {unit_name}</div>
-                <div>
+                <div className='specAPlot'>
                     <Plot
                         data = {plotData}
                         layout = { 
@@ -107,13 +326,39 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                                 xaxis: { 
                                     title: 'MHz',
                                     color: 'white',
-                                    range: [ewokSpecA?.cf - ewokSpecA?.bw / 2, ewokSpecA?.cf + ewokSpecA?.bw / 2],
+                                    range: [settings?.cf - settings?.bw / 2, settings?.cf + settings?.bw / 2],
                                     fixedrange: true
                                 },
                                 yaxis: { title: 'dB', color: 'white', fixedrange : true, range: [-103, -83]},
                                 font: { color: 'white'}, legend: { y: 0 },
                                 modebar: {remove: ["autoScale2d", 'zoom2d', 'zoomIn2d', 'zoomOut2d', 'pan2d', 'resetScale2d', 'toImage']},
-                                dragmode: 'select'
+                                dragmode: 'select',
+                                showlegend: false,
+                                annotations: [
+                                    {
+                                        x: plotX[markerX],
+                                        y: plotY[markerX],
+                                        xref: 'x',
+                                        yref: 'y',
+                                        text: String(Math.round(100*plotX[markerX])/100) + ' MHz',
+                                        showarrow: true,
+                                        arrowhead: 7,
+                                        ax: 0,
+                                        ay: -35
+                                    },
+                                    {
+                                        x: plotX[markerX],
+                                        y: plotY[markerX],
+                                        xref: 'x',
+                                        yref: 'y',
+                                        text: String(Math.round(100*plotY[markerX])/100) + ' dB',
+                                        showarrow: true,
+                                        arrowhead: 1,
+                                        arrowcolor: 'white',
+                                        ax: 0,
+                                        ay: -20
+                                    }
+                                ]
                             }   
                         }
                         
@@ -124,14 +369,59 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     }
     return(
         <div className='SpecA'>
-            <SpecAPlot />
-            <span>Center Frequency</span>
-            <input type='text' name='cf' value={specAState.cf} onChange={e => handleChangeCF(e)}></input>
-            <span>Span</span>
-            <input type='text' value={specAState.bw} onChange={e => handleChangeBW(e)}></input>
-            <button onClick={() => handleClickSet()}>SET</button>
+            <SpecAPlot/>
+            <div className='SpecAControls'>
+                <div className='freqValues'>
+                    <span>{Math.round(1000 * (settings?.cf - settings?.bw / 2)) / 1000} MHz</span>
+                    <button onClick={() => handleClickLeft()}>L</button>
+                    <button onClick={() => handleClickRight()}>R</button>
+                    <button onClick={() => handleClickZoomOut()}>-</button>
+                    <button onClick={() => handleClickZoomIn()}>+</button>
+                    <span>{Math.round(1000 * settings?.cf) / 1000} MHz</span>
+                    <span></span>
+                    <button onClick={() => setMarkerX(markerX - 10)}>L</button>
+                    <button onClick={() => setMarkerX(markerX + 10)}>R</button>
+                    <span></span>
+                    <span>{Math.round(1000 * (settings?.cf + settings?.bw / 2)) / 1000} MHz</span>
+                </div>
+                <div className='inputControl'>
+                    <span className='label'>Center Frequency</span>
+                    <input type='text' name='cf' value={settingState?.cf} onChange={e => handleChangeCF(e)}></input>
+                    <span className='unit'>MHz</span>
+                    <span className='label'>Span</span>
+                    <input type='text' value={settingState?.bw} onChange={e => handleChangeBW(e)}></input>
+                    <span className='unit'>MHz</span>
+                    <span></span>
+                    <button onClick={() => handleClickSet()}>SET</button>
+                    <span></span>
+                </div>
+                <div className='traceControl'>
+                    <button onClick={() => handleClickMax()}>Max Hold</button>
+                    <button onClick={() => handleClickResetMax()}>Reset</button>
+                </div>
+                <div className='traceControl'>
+                    <button onClick={() => handleClickLock()}>Lock</button>
+                    <button onClick={() => handleClickResetLock()}>Reset</button>
+                </div>
+
+            </div>
         </div>
     );
 };
 
 export default SpecA;
+
+interface equipment {
+    id: number,
+    conn: string,
+    server: string,
+    team: string,
+    unit_type: string,
+    unit_name: string,
+    cf: number,
+    bw: number,
+    power: number,
+    sat: string,
+    feed: string,
+    active: boolean
+};

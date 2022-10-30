@@ -8,7 +8,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "devDependencies": {
-    "@types/node": "^18.11.3"
+    "@types/node": "^18.11.7"
   },
   "scripts": {
     "start": "nodemon app.tsx"

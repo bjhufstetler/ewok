@@ -3,7 +3,7 @@ import { FunctionComponent, useContext, useState, useMemo, createContext } from 
 import { useFetch } from "../hooks/useFetch";
 
 const defaultEwokContext = {
-    team: "Instructor",
+    team: "Victor",
     server: "0a2b",
     baseURL: 'http://localhost:8080'
 };
@@ -31,11 +31,11 @@ const EwokProvider: FunctionComponent<EwokProviderProps> = ({ children }) => {
 const EquipmentContext = createContext({} as IEquipmentContext);
 const EquipmentProvider: FunctionComponent<EquipmentProviderProps> = ({ children }) => {
     const { ewok } = useEwokContext();
-    const { data: equipment, setData: setEquipment } = useFetch(`/equipment?server=${ewok.server}&team=Instructor`);
+    const { data: equipment, setData: setEquipment } = useFetch(`/equipment?server=${ewok.server}&team=${ewok.team}`);
     
     const value: any = useMemo(() => ({
         equipment, setEquipment
-    }), [equipment]);
+    }), [equipment, ewok]);
     
     return (
         <EquipmentContext.Provider value = {value}>
@@ -51,7 +51,7 @@ const SatEnvProvider: FunctionComponent<SatEnvProviderProps> = ({ children }) =>
     
     const value: any = useMemo(() => ({
         satEnv, setSatEnv
-    }), [satEnv]);
+    }), [satEnv, ewok]);
     
     return (
         <SatEnvContext.Provider value = {value}>
