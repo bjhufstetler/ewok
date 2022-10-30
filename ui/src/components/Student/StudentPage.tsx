@@ -12,7 +12,7 @@ const StudentPage = () => {
             <SpecA unit_name="1"/>
             <SpecA unit_name="2"/>
             <Antenna/>
-            <Antenna/>
+            <div></div>
             <Transmitter/>
             <Transmitter/>
             <Receiver/>

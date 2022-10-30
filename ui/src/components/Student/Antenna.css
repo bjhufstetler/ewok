@@ -1,0 +1,52 @@
+.antennaBody {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+.antennaOptions {
+    width: 370px;
+    border: 1px solid black;
+    padding: 10px;
+    margin: 5px;
+    display: grid;
+    grid-template-columns:3fr 2fr 1fr;
+    align-items: center;
+}
+
+.antennaLoopback {
+    align-items: center;
+    width: 100px;
+    border: 1px solid black;
+    padding: 10px;
+    margin: 5px;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    text-align: left;
+}
+
+.antennaHPA {
+    align-items: center;
+    width: 120px;
+    border: 1px solid black;
+    padding: 10px;
+    margin: 5px;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    text-align: left;
+}
+
+.antennaHPAdisabled {
+    align-items: center;
+    width: 120px;
+    border: 1px solid grey;
+    color: grey;
+    padding: 10px;
+    margin: 5px;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    text-align: left;
+}
+
+.HPAlabel {
+    margin-left: 10px;
+    font-size: 20px;
+}
