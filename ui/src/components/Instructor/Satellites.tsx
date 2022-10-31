@@ -19,7 +19,6 @@ const Satellites = () => {
 
     useEffect(() => {
         let tmpSatEnv = [...satEnv];
-        console.log(tmpSatEnv, satEnv)
         let tmpSignals = [
             {team: "All", x: 5000, y: -100, sat: 'Satellite A'},
             {team: "All", x: 5000, y: -100, sat: 'Satellite B'},

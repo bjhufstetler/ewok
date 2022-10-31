@@ -73,9 +73,13 @@ const SignalDetails = () => {
         })
         .then(response => {
             if (response.ok) {
+                return response.json();
             } else {
                 throw new Error('Cannot convert response to json');
             };
+        })
+        .then(data => {
+            setEquipment(data);
         })
     };
     
@@ -126,11 +130,9 @@ const SignalDetails = () => {
     
     // Patch entry in db
     const handleClickSave: Function = () => {
-        console.log("id", selection.id)
         if ( selection.id > -1 ) {
             // Get active from [equipment]
             const index = equipment.map((x: any) => x.id).indexOf(selection.id);
-            console.log('index', index)
             const tmpActive : boolean = equipment[index].active;
             const tmpSelection = {...selection, active: tmpActive};
             // If active, PATCH [satEnv]
@@ -335,7 +337,7 @@ const SignalDetails = () => {
                     };
                 })
                 .then(data => {
-                    setSatEnv(data)
+                    //setSatEnv(data)
                 });
                 // Toggle eyeball
                 setVisibleSignal(true)
