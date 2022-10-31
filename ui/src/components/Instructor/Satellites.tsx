@@ -1,14 +1,25 @@
 import Plot from 'react-plotly.js';
 import { useEffect, useState } from 'react';
-import { useSatEnvContext } from '../../context/EwokContext';
+import { useSatEnvContext, useEwokContext } from '../../context/EwokContext';
 
 const Satellites = () => {
-    const { satEnv } = useSatEnvContext();
+    const { ewok } = useEwokContext();
+    const { satEnv, setSatEnv } = useSatEnvContext();
     const [signals, setSignals] = useState<signals[]>([]);
     
+    const [signalTimer, setSignalTimer] = useState<boolean>(false);
     useEffect(() => {
-        let tmpSatEnv = [...satEnv].filter(x => x.stage == "ULRF");
+        setTimeout(() => {
+            fetch(`${ewok.baseURL}/satEnv?server=${ewok.server}`)
+            .then(res => res.json())
+            .then(dat => setSatEnv(dat))
+            setSignalTimer(!signalTimer);
+        }, 2000);
+    }, [signalTimer]);
 
+    useEffect(() => {
+        let tmpSatEnv = [...satEnv];
+        console.log(tmpSatEnv, satEnv)
         let tmpSignals = [
             {team: "All", x: 5000, y: -100, sat: 'Satellite A'},
             {team: "All", x: 5000, y: -100, sat: 'Satellite B'},
@@ -16,8 +27,9 @@ const Satellites = () => {
         
         if ( tmpSatEnv.length > 0 ) {
             tmpSatEnv.sort((a, b) => a.cf - b.cf).map(signal => {
-                tmpSignals.push({team: signal.team, x: signal.cf - signal.bw / 2, y: signal.power, sat: signal.sat});
-                tmpSignals.push({team: signal.team, x: signal.cf + signal.bw / 2, y: -100, sat: signal.sat});
+                const converter = signal.sat == 'Satellite A' ? 5100 : signal.sat == 'Satellite B' ? 11050 : 30025;
+                tmpSignals.push({team: signal.team, x: signal.cf + converter - signal.bw / 2, y: signal.power, sat: signal.sat});
+                tmpSignals.push({team: signal.team, x: signal.cf + converter + signal.bw / 2, y: -100, sat: signal.sat});
             });
         };
 
@@ -54,12 +66,13 @@ const Satellites = () => {
             });
         });
 
-        satEnv.filter((signal : any) => signal.sat == sat ).map((signal : any) => {
+        satEnv.filter((signal : any) => signal.sat == sat ).map((signal : any, signalID: any) => {
+            const converter = sat == 'Satellite A' ? 5100 : sat == 'Satellite B' ? 11050 : 30025;
             const teamIndex = teamData.map(x => x.team).indexOf(signal.team);
             const teamColor = teamData[teamIndex].color;
             plotData.push({
-                x: [signal.cf],
-                y: [-100 + 13 * Math.random()],
+                x: [signal.cf + converter],
+                y: [-100 + Number(signalID)],
                 mode: 'text',
                 text: String(signal.cf / 1000) + " GHz",
                 textfont: { color: teamColor},

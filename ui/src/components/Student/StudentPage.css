@@ -2,14 +2,29 @@
     position: fixed;
     left: 0;
     top: 120px;
+    height: 1000px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 190px 850px 850px;
+    grid-template-rows: 480px 480px 300px;
+    overflow: auto;
 }
 
-.SpecA, .Antenna, .Receiver, .Transmitter {
+.SpecA, .Receiver, .Transmitter, .Antenna {
+    width: 800px;
+    height: 430px;
     border: 1px solid black;
     background-color: rgb(86, 87, 90);
     padding: 20px;
     margin: 5px;
     border-radius: 10px;
+}
+
+.Antenna {
+    padding: 10px;
+    width: 160px;
+    height: 360px;
+}
+
+.Receiver, .Transmitter {
+    height: 300px;
 }

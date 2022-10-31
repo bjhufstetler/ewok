@@ -1,18 +1,27 @@
 .antennaBody {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr;
 }
 .antennaOptions {
-    width: 370px;
+    width: 130px;
     border: 1px solid black;
     padding: 10px;
     margin: 5px;
     display: grid;
-    grid-template-columns:3fr 2fr 1fr;
+    grid-template-columns:1fr;
     align-items: center;
 }
 
+.antennaSelect {
+    width: 130px;
+}
+
+.antennaInput {
+    width: 122px;
+}
+
 .antennaLoopback {
+    justify-self: center;
     align-items: center;
     width: 100px;
     border: 1px solid black;
@@ -24,6 +33,7 @@
 }
 
 .antennaHPA {
+    justify-self: center;
     align-items: center;
     width: 120px;
     border: 1px solid black;
@@ -35,6 +45,7 @@
 }
 
 .antennaHPAdisabled {
+    justify-self: center;
     align-items: center;
     width: 120px;
     border: 1px solid grey;

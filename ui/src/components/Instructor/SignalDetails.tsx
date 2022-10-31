@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TbPlus, TbEyeOff, TbEye } from 'react-icons/tb';
+import { useFetch } from '../../hooks/useFetch';
 import { useEwokContext, useEquipmentContext, useSatEnvContext } from '../../context/EwokContext';
 
 // TODO: connect equipment to db instead of state
@@ -72,14 +73,10 @@ const SignalDetails = () => {
         })
         .then(response => {
             if (response.ok) {
-                return response.json();
             } else {
                 throw new Error('Cannot convert response to json');
             };
         })
-        .then(data => {
-            setEquipment(data)
-        });
     };
     
     // Copy [equipment] to clipboard 
@@ -112,14 +109,10 @@ const SignalDetails = () => {
             })
             .then(response => {
                 if (response.ok) {
-                    return response.json();
                 } else {
                     throw new Error('Cannot convert response to json');
                 };
             })
-            .then(data => {
-                setEquipment(data)
-            });
         };
     };
     
@@ -164,14 +157,11 @@ const SignalDetails = () => {
                 })
                 .then(response => {
                     if (response.ok) {
-                        return response.json();
                     } else {
                         throw new Error('Cannot convert response to json');
                     };
                 })
-                .then(data => {
-                    setSatEnv(data)
-                });
+                
             };
             // PATCH [equipment]
             fetch(`${ewok.baseURL}/table?table=equipment`, {

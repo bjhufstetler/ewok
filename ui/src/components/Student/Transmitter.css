@@ -1,0 +1,32 @@
+.txModemOutputs {
+    border: 1px solid black;
+    padding: 20px;
+    margin: 5px;
+    width: 245px;
+    display: grid;
+    grid-template-columns: 100px 100px 25px;
+    align-items: center;
+}
+
+.value {
+    font-weight: bold;
+}
+
+.txBody {
+    display: grid;
+    grid-template-columns: 1fr 3fr 4fr;
+    justify-items: center;
+}
+
+.txModemSelect {
+    border: 1px solid black;
+    padding: 20px;
+    margin: 5px;
+    width: 115px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.txModemSelect * {
+    margin: 5px;
+}

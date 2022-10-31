@@ -9,13 +9,14 @@ const StudentPage = () => {
     return(
         <div className='studentPage'>
             <Subheader/>
-            <SpecA unit_name="1"/>
-            <SpecA unit_name="2"/>
             <Antenna/>
+            <SpecA unit_name="2"/>
+            <SpecA unit_name="4"/>
+            <div></div>
+            <SpecA unit_name="1"/>
+            <SpecA unit_name="3"/>
             <div></div>
             <Transmitter/>
-            <Transmitter/>
-            <Receiver/>
             <Receiver/>
         </div>
     )

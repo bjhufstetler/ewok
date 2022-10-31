@@ -14,7 +14,6 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     // Import [satenv] for signal information 
     const { satEnv, setSatEnv } = useSatEnvContext();
 
-
     const [markerX, setMarkerX] = useState<number>(500);
 
     const [plotTimer, setPlotTimer] = useState<boolean>(false);
@@ -279,9 +278,41 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         const plotX : Array<number> = Array(1000).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0])
         let plotY : Array<number> = y;
         let tmpMaxY : Array<number> = maxY;
+        let plotEnv = [...satEnv.filter(x => x.team == ewok.team)];
+        const antenna = equipment.filter(x => x.unit_type == 'Antenna')[0]
+        const satTTF = antenna?.sat == 'Satellite A' ? 25 : antenna?.sat == 'Satellite B' ? 10 : 15;
+        const antTTF = antenna?.cf;
+        let ttf = satTTF;
+        const converter = antenna?.unit_name == 'C' ? 5100 : antenna?.unit_name == 'Ku' ? 11050 : 30025;
+        if ( unit_name == '2') {
+            plotEnv = [...satEnv.filter(x => x.team == ewok.team).map(x => {
+                return(
+                    {...x,
+                    cf: x.cf + converter}
+                )
+            })]
+        } else if( unit_name == '3') {
+            plotEnv = [...satEnv.map(x => {
+                ttf = !antenna?.active && x.team == ewok.team ?
+                    antTTF : satTTF
+                return(
+                    {...x,
+                    cf: x.cf + ttf}
+                )
+            })]
+        } else if( unit_name == '4') {
+            plotEnv = [...satEnv.map(x => {
+                ttf = !antenna?.active && x.team == ewok.team ?
+                    antTTF : satTTF
+                return(
+                    {...x,
+                    cf: x.cf + ttf + converter}
+                )
+            })]
+        }
         plotX.map((x, xid) => {
-            let signalPower = satEnv.filter(env => 
-                env.server == ewok.server &&
+            let signalPower = plotEnv.filter(env => 
+                env.sat == antenna?.sat &&
                 env.cf - env.bw / 2 <= x &&
                 env.cf + env.bw / 2 >= x).map(signal => signal.power)
             signalPower.push(-100)
@@ -295,27 +326,29 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
             {
                 x: plotX,
                 y: plotY,
-                line: {color: '#f6f955', width: .5}
+                line: {color: '#f6f955', width: .5},
+                hoverinfo: "none",
             },
             {
                 x: plotX,
                 y: tmpMaxY,
-                line: {color: '#5ef568', width: max ? .5 : 0}
+                line: {color: '#5ef568', width: max ? .5 : 0},
+                hoverinfo: "none",
             }
             ,
             {
                 x: plotX,
                 y: lockY,
-                line: {color: '#5eb1f5', width: lock ? .5 : 0}
+                line: {color: '#5eb1f5', width: lock ? .5 : 0},
+                hoverinfo: "none",
             }
         ];
         /*
-            TODO: Max hold, saved states, antenna selection, rf/if, ul/dl, updates every 1/nth of a second
-            consider putting this in context.
+            TODO: saved states
         */
         return(
             <>
-                <div>Spectrum Analyzer {unit_name}</div>
+                <div>Spectrum Analyzer {unit_name}: {Number(unit_name) < 3 ? 'Uplink ' : 'Downlink '}{Number(unit_name) % 2 == 0 ? 'RF' : 'IF'}</div>
                 <div className='specAPlot'>
                     <Plot
                         data = {plotData}
