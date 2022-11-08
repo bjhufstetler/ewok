@@ -30,3 +30,18 @@
 .txModemSelect * {
     margin: 5px;
 }
+
+.buttonOn {
+    background-color: rgb(204, 30, 30); 
+    border: 2px solid red;  
+}
+.buttonOnSelected {
+    background-color: rgb(204, 30, 30);
+    border: 2px solid white;
+}
+.buttonSelected {
+    border: 2px solid white;
+}
+.buttonOff {
+    border: 2px solid black;
+}

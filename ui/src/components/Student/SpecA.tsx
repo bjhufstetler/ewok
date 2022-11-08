@@ -3,55 +3,31 @@ import { useEffect, useState } from 'react';
 import './StudentPage.css';
 import './SpecA.css';
 import Plot from 'react-plotly.js';
-import { RuxButton, RuxSwitch } from "@astrouxds/react";
 
 const SpecA = ({ unit_name } : { unit_name: string}) => {
 
     // Import [ewok] for server/team information
-    const { ewok } = useEwokContext();
+    const { ewok, socket, satellites } = useEwokContext();
     // Import [equipment] for SpecA settings
-    const { equipment, setEquipment } = useEquipmentContext();
+    const { equipment } = useEquipmentContext();
     // Import [satenv] for signal information 
-    const { satEnv, setSatEnv } = useSatEnvContext();
+    const { satEnv } = useSatEnvContext();
+    useEffect(() => {
+        //console.log(satEnv)
+    }, [satEnv])
+
 
     const [markerX, setMarkerX] = useState<number>(500);
 
     const [plotTimer, setPlotTimer] = useState<boolean>(false);
+   
     useEffect(() => {
         setTimeout(() => {
-            //setSatEnv([...satEnv]);
             setPlotTimer(!plotTimer);
         }, 100);
     }, [plotTimer]);
 
     const [dataTimer, setDataTimer] = useState<boolean>(false);
-    useEffect(() => {
-        setTimeout(() => {
-            fetch(`${ewok.baseURL}/equipment?server=${ewok.server}&team=${ewok.team}`)
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Cannot convert response to json');
-                    };
-                })
-                .then(data => {
-                    setEquipment(data)
-                });
-            fetch(`${ewok.baseURL}/satEnv?server=${ewok.server}`)
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Cannot convert response to json');
-                    };
-                })
-                .then(data => {
-                    setSatEnv(data)
-                });
-            setDataTimer(!dataTimer);
-        }, 1000);
-    }, [dataTimer])
 
     // Hold settings in state noting that only one piece of equipment is being used
     const tmpSettings : equipment = {
@@ -80,56 +56,42 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
             )[0];
         
         setSettings(tmpSettings)
-        //setSettingState(tmpSettings)
+        setSettingState(tmpSettings)
     }, [ewok, equipment]);
 
 
     const handleChangeCF = (e: any) => {
-        let tmpValue = 0;
+        let tmpValue = settingState.cf;
+        if(!isNaN(Number(e.target.value)) && Number(e.target.value) > 0) tmpValue = e.target.value;
         if(e.target.value > 0) tmpValue = e.target.value;
         let tmpSettingState = {
             ...settingState,
-            cf: Number(tmpValue)
+            cf: tmpValue
         };
         setSettingState(tmpSettingState);
     };
 
     const handleChangeBW = (e: any) => {
-        let tmpValue = 0;
-        if(e.target.value > 0) tmpValue = e.target.value;
+        let tmpValue = settingState.bw;
+        if(!isNaN(Number(e.target.value)) && Number(e.target.value) > 0) tmpValue = e.target.value;
         let tmpSettingState = {
             ...settingState,
-            bw: Number(tmpValue)
+            bw: tmpValue
         };
         setSettingState(tmpSettingState);
     };
 
     const handleClickSet = () => {
         const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpBw = settingState.cf - settingState.bw/2 <= 0 ? settingState.cf * 2 : settingState.bw;
+        console.log(tmpBw)
         const tmpEquipment = {
             ...equipment[equipmentIndex],
             cf: settingState.cf,
-            bw: settingState.bw
+            bw: tmpBw
         }
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'PATCH', 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpEquipment)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then(data => {
-            setEquipment(data)
-            setY(initY)
-        });
+        socket.emit('PATCH', 'equipment', tmpEquipment)
+        setY(initY)
     };
     const initY = Array(1000).fill(-103);
     const initYMax = Array(1000).fill(-110);
@@ -162,30 +124,15 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         
     const handleClickLeft = () => {
         const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpCf = Math.round(1000 * (settings.cf - settings.bw / 10)) / 1000;
+        const tmpBw = tmpCf - settingState.bw/2 < 0 ? tmpCf * 2 : settingState.bw;
         const tmpEquipment = {
             ...equipment[equipmentIndex],
-            cf: Math.round(1000 * (settings.cf - settings.bw / 10)) / 1000
+            cf: tmpCf,
+            bw: tmpBw
         }
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'PATCH', 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpEquipment)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then((data: Array<equipment>) => {
-            setEquipment(data);
-            setY(initY);
-
-        });
+        socket.emit('PATCH', 'equipment', tmpEquipment)
+        setY(initY);
     };
     const handleClickRight = () => {
         const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
@@ -193,77 +140,30 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
             ...equipment[equipmentIndex],
             cf: Math.round(1000 * (settings.cf + settings.bw / 10)) / 1000
         }
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'PATCH', 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpEquipment)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then(data => {
-            setEquipment(data);
-            setY(initY);
-        });
+        socket.emit('PATCH', 'equipment', tmpEquipment);
+        setY(initY);
     };
+
     const handleClickZoomIn = () => {
         const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
         const tmpEquipment = {
             ...equipment[equipmentIndex],
             bw: Math.round(settings.bw * .5 * 1000) / 1000
         }
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'PATCH', 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpEquipment)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then(data => {
-            setEquipment(data);
-            setY(initY);
-        });
+        socket.emit('PATCH', 'equipment', tmpEquipment);
+        setY(initY);
     };
     const handleClickZoomOut = () => {
         const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
+        const tmpBw = Math.round(settingState.bw * 1.5 * 1000) / 1000
+        const tmpCf = settingState.cf - tmpBw/2 < 0 ? tmpBw / 2 : settingState.cf;
         const tmpEquipment = {
             ...equipment[equipmentIndex],
-            bw: Math.round(settings.bw * 1.5 * 1000) / 1000
+            cf: tmpCf,
+            bw: tmpBw
         }
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'PATCH', 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpEquipment)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then(data => {
-            setEquipment(data);
-            setY(initY);
-        });
+        socket.emit('PATCH', 'equipment', tmpEquipment);
+        setY(initY);
     };
 
     const randn_bm = () => {
@@ -274,47 +174,65 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
 
     const SpecAPlot = () => {
         const plotTimerObserver = plotTimer;
-        const plotXRange = [settings?.cf - settings?.bw / 2, settings?.cf + settings?.bw / 2]
-        const plotX : Array<number> = Array(1000).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0])
+        const plotXRange = [settings?.cf - settings?.bw / 2, settings?.cf + settings?.bw / 2];
+        const plotX : Array<number> = Array(1000).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0]);
+        const plotYLimit : Array<number> = Array(1000).fill(-60);
         let plotY : Array<number> = y;
         let tmpMaxY : Array<number> = maxY;
-        let plotEnv = [...satEnv.filter(x => x.team == ewok.team)];
-        const antenna = equipment.filter(x => x.unit_type == 'Antenna')[0]
-        const satTTF = antenna?.sat == 'Satellite A' ? 25 : antenna?.sat == 'Satellite B' ? 10 : 15;
-        const antTTF = antenna?.cf;
-        let ttf = satTTF;
-        const converter = antenna?.unit_name == 'C' ? 5100 : antenna?.unit_name == 'Ku' ? 11050 : 30025;
-        if ( unit_name == '2') {
-            plotEnv = [...satEnv.filter(x => x.team == ewok.team).map(x => {
+        //let plotEnv = [...satEnv?.filter(x => x.team == ewok.team)];
+        const antenna = equipment?.filter(x => x.unit_type == 'Antenna')[0];
+        let plotEnv: any = null;
+        // Uplink IF
+        if ( unit_name == '1') {
+            plotEnv = [...satEnv?.filter(x => x.team == ewok.team)];
+
+        // Uplink RF
+        } else if ( unit_name == '2') {
+            plotEnv = [...satEnv?.filter(x => x.team == ewok.team).map(x => {
+                const uc = satellites?.filter(satellite => satellite?.band == x?.band)[0]?.uc;
                 return(
-                    {...x,
-                    cf: x.cf + converter}
+                    {
+                        ...x,
+                        cf: x.cf + uc,
+                        power: x.power - 2 // 2 dB power drop from ULIF to ULRF
+                    } 
                 )
             })]
+
+        // Downlink IF
         } else if( unit_name == '3') {
-            plotEnv = [...satEnv.map(x => {
-                ttf = !antenna?.active && x.team == ewok.team ?
-                    antTTF : satTTF
+            plotEnv = [...satEnv?.filter(x => x.team != ewok.team || x.lb || x.active).map(x => {
+                console.log(x.team, x.lb, x.active)
+                const uc = satellites?.filter(satellite => satellite.band == x.band)[0]?.uc;
+                const dc = satellites?.filter(satellite => satellite.band == antenna?.unit_name)[0]?.dc;
+                const ttf = x.team == ewok.team && antenna.power ? antenna?.cf : satellites?.filter(satellite => satellite.sat == x.sat)[0]?.ttf;
+                const fspl = satellites?.filter(satellite => satellite.band == antenna?.unit_name)[0]?.fspl;
                 return(
                     {...x,
-                    cf: x.cf + ttf}
+                    cf: x.cf + uc + ttf + dc,
+                    power: x.power - 2 - fspl - 2,}
                 )
             })]
+
+        // Downlink RF
         } else if( unit_name == '4') {
-            plotEnv = [...satEnv.map(x => {
-                ttf = !antenna?.active && x.team == ewok.team ?
-                    antTTF : satTTF
+            plotEnv = [...satEnv?.filter(x => x.team != ewok.team || x.lb || x.active).map(x => { //plotEnv = [...satEnv?.filter(signal => signal.active || signal.lb).map(x => {
+                const uc = satellites?.filter(satellite => satellite.band == x.band)[0]?.uc;
+                const ttf =  x.team == ewok.team && antenna.power ? antenna?.cf : satellites?.filter(satellite => satellite.sat == x.sat)[0]?.ttf;
+                const fspl = satellites?.filter(satellite => satellite.band == antenna?.unit_name)[0]?.fspl;
                 return(
                     {...x,
-                    cf: x.cf + ttf + converter}
+                    cf: x.cf + ttf + uc,
+                    power: x.power - 2 - fspl}
                 )
             })]
-        }
+        };
+
         plotX.map((x, xid) => {
-            let signalPower = plotEnv.filter(env => 
+            let signalPower = plotEnv.filter((env: any) => 
                 env.sat == antenna?.sat &&
-                env.cf - env.bw / 2 <= x &&
-                env.cf + env.bw / 2 >= x).map(signal => signal.power)
+                env.cf - env.dr * (1 + 1/env.fec) / ( env.mod * 2 ) <= x &&
+                env.cf + env.dr * (1 + 1/env.fec) / ( env.mod * 2 ) >= x).map((signal: any) => signal.power * (1 + (1 / (10 * signal.mod)) + ( 1 / (10 * signal.fec)) ))
             signalPower.push(-100)
             let tmpY = Math.max(...signalPower);
             const variability = y[xid] > -100 ? .3 : .5
@@ -343,6 +261,16 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                 hoverinfo: "none",
             }
         ];
+        if( unit_name == '1' ) {
+            plotData.push(
+                {
+                    x: plotX,
+                    y: plotYLimit,
+                    line: {color:'#c43932', width: 1.5},
+                    hoverinfo: 'none',
+                }
+            )
+        }
         /*
             TODO: saved states
         */
@@ -361,8 +289,9 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                                     color: 'white',
                                     range: [settings?.cf - settings?.bw / 2, settings?.cf + settings?.bw / 2],
                                     fixedrange: true
+                                    
                                 },
-                                yaxis: { title: 'dB', color: 'white', fixedrange : true, range: [-103, -83]},
+                                yaxis: { title: 'dB', color: 'white'},// fixedrange : true, range: [-103, -83]},
                                 font: { color: 'white'}, legend: { y: 0 },
                                 modebar: {remove: ["autoScale2d", 'zoom2d', 'zoomIn2d', 'zoomOut2d', 'pan2d', 'resetScale2d', 'toImage']},
                                 dragmode: 'select',

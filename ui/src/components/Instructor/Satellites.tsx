@@ -1,49 +1,38 @@
 import Plot from 'react-plotly.js';
 import { useEffect, useState } from 'react';
-import { useSatEnvContext, useEwokContext } from '../../context/EwokContext';
+import { useEwokContext, useSatEnvContext } from '../../context/EwokContext';
 
 const Satellites = () => {
-    const { ewok } = useEwokContext();
-    const { satEnv, setSatEnv } = useSatEnvContext();
+    const { satellites } = useEwokContext();
+    const { satEnv } = useSatEnvContext();
     const [signals, setSignals] = useState<signals[]>([]);
-    
-    const [signalTimer, setSignalTimer] = useState<boolean>(false);
-    useEffect(() => {
-        setTimeout(() => {
-            fetch(`${ewok.baseURL}/satEnv?server=${ewok.server}`)
-            .then(res => res.json())
-            .then(dat => setSatEnv(dat))
-            setSignalTimer(!signalTimer);
-        }, 2000);
-    }, [signalTimer]);
 
     useEffect(() => {
-        let tmpSatEnv = [...satEnv];
+        let tmpSatEnv = satEnv;
         let tmpSignals = [
-            {team: "All", x: 5000, y: -100, sat: 'Satellite A'},
-            {team: "All", x: 5000, y: -100, sat: 'Satellite B'},
-            {team: "All", x: 5000, y: -100, sat: 'Satellite C'}];
+            {team: "All", x: 5000, y: -100, sat: 'ASH'},
+            {team: "All", x: 5000, y: -100, sat: 'DRSC'},
+            {team: "All", x: 5000, y: -100, sat: 'ArCOM'}];
         
         if ( tmpSatEnv.length > 0 ) {
-            tmpSatEnv.sort((a, b) => a.cf - b.cf).map(signal => {
-                const converter = signal.sat == 'Satellite A' ? 5100 : signal.sat == 'Satellite B' ? 11050 : 30025;
-                tmpSignals.push({team: signal.team, x: signal.cf + converter - signal.bw / 2, y: signal.power, sat: signal.sat});
-                tmpSignals.push({team: signal.team, x: signal.cf + converter + signal.bw / 2, y: -100, sat: signal.sat});
+            tmpSatEnv.sort((a, b) => a.cf - b.cf).filter(x => x.team == 'Instructor' || x.active || x.power).map(signal => {
+                const power = signal.power * (1 + (1 / (10 * signal.mod)) + ( 1 / (10 * signal.fec))) - 2;
+                const uc = signal.team == 'Instructor' ? satellites.filter(x => x.sat == signal.sat)[0]?.uc : satellites.filter(x => x.band == signal.band)[0]?.uc;
+                const bw = signal.dr * (1 + 1/signal.fec) / ( signal.mod * 2 );
+                tmpSignals.push({team: signal.team, x: signal.cf + uc - bw, y: power, sat: signal.sat});
+                tmpSignals.push({team: signal.team, x: signal.cf + uc + bw, y: -100, sat: signal.sat});
             });
         };
 
-        [{team: "All", x: 32000, y: -100, sat: 'Satellite A'},
-        {team: "All", x: 32000, y: -100, sat: 'Satellite B'},
-        {team: "All", x: 32000, y: -100, sat: 'Satellite C'}].forEach(signal => {
+        [{team: "All", x: 32000, y: -100, sat: 'ASH'},
+        {team: "All", x: 32000, y: -100, sat: 'DRSC'},
+        {team: "All", x: 32000, y: -100, sat: 'ArCOM'}].forEach(signal => {
             tmpSignals.push(signal)
         });
 
         setSignals(tmpSignals);  
+        console.log('heard socket.emit')
     }, [satEnv]);
-
-    useEffect(() => {
-
-    })
     
     const SatEnvPlot = ({ sat, lb, ub } : { sat: string, lb: number, ub: number}) => {
         const teamData : Array<{team: string, color: string}> = [
@@ -66,14 +55,24 @@ const Satellites = () => {
         });
 
         satEnv.filter((signal : any) => signal.sat == sat ).map((signal : any, signalID: any) => {
-            const converter = sat == 'Satellite A' ? 5100 : sat == 'Satellite B' ? 11050 : 30025;
+            const uc = signal.team == 'Instructor' ? satellites.filter(x => x.sat == signal.sat)[0]?.uc : satellites.filter(x => x.band == signal.band)[0]?.uc;
             const teamIndex = teamData.map(x => x.team).indexOf(signal.team);
             const teamColor = teamData[teamIndex].color;
+            const mod = signal.mod == 1 ? 'BPSK' : 'QPSK'
+            const fec = signal.fec == 1 ? '1/2' : signal.fec == 3 ? '3/4' : '7/8'
             plotData.push({
-                x: [signal.cf + converter],
-                y: [-100 + Number(signalID)],
+                x: [signal.cf + uc],
+                y: [-100 + 10 * (1 + Number(signalID))],
                 mode: 'text',
                 text: String(signal.cf / 1000) + " GHz",
+                textfont: { color: teamColor},
+                showlegend: false 
+            });
+            plotData.push({
+                x: [signal.cf + uc],
+                y: [-100 + 10 * (1 + Number(signalID)) - 5],
+                mode: 'text',
+                text: `${String(signal.dr)} MHz | ${mod} ${fec}`,
                 textfont: { color: teamColor},
                 showlegend: false 
             });
@@ -110,7 +109,7 @@ const Satellites = () => {
                                 width: 1200, height: 240, plot_bgcolor: "#2e292b", paper_bgcolor: "#2e292b",
                                 margin: { l: 55, r: 10, b: 40, t: 10, pad: 1 },
                                 xaxis: { title: 'MHz', color: 'white' , range: [lb, ub] },
-                                yaxis: { title: 'dB', color: 'white' , fixedrange: true, range: [-101, -83] },
+                                yaxis: { title: 'dB', color: 'white'},
                                 font: { color: 'white'}, legend: { y: 0 },
                                 modebar: {remove: ['zoomIn2d', 'zoomOut2d', 'resetScale2d', 'toImage', 'lasso2d']}
                             }   
@@ -124,9 +123,9 @@ const Satellites = () => {
     
     return(
         <>
-            <SatEnvPlot key="A'" sat = {"Satellite A"} lb = {6000} ub={7000}/>
-            <SatEnvPlot key="B'" sat = {"Satellite B"} lb = {12000} ub={13000}/>
-            <SatEnvPlot key="C'" sat = {"Satellite C"} lb = {30000} ub={31000}/>
+            <SatEnvPlot key="A'" sat = {"ASH"} lb = {6000} ub={7000}/>
+            <SatEnvPlot key="B'" sat = {"DRSC"} lb = {12000} ub={13000}/>
+            <SatEnvPlot key="C'" sat = {"ArCOM"} lb = {30000} ub={31000}/>
         </>
     )
 };

@@ -11,12 +11,13 @@ const InstructorCreate = () => {
     return(
         <div className="Card">
             <div>
+                <h1>COMING SOON</h1>
                 <h1>WARNING!</h1>
                 <p>Clicking 'CONTINUE' will create a new server.</p>
                 <p>This cannot be undone.</p> 
             </div>
-            <button onClick={() => navigate("/instructor")}>CONTINUE</button>
-            <button onClick={() => navigate("/instructorLogin")}>BACK</button>
+            {/*<button onClick={() => navigate("/instructor")}>CONTINUE</button>
+            <button onClick={() => navigate("/instructorLogin")}>BACK</button>*/}
         </div>
     )
 };

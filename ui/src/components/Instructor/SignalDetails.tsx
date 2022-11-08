@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TbPlus, TbEyeOff, TbEye } from 'react-icons/tb';
-import { useFetch } from '../../hooks/useFetch';
-import { useEwokContext, useEquipmentContext, useSatEnvContext } from '../../context/EwokContext';
+import { useEwokContext, useEquipmentContext, useSatEnvContext, SatEnvContext } from '../../context/EwokContext';
 
 // TODO: connect equipment to db instead of state
 
@@ -15,9 +14,9 @@ const SignalDetails = () => {
     }
 
     // Declare ewok context {server, team}
-    const { ewok } = useEwokContext();
-    const { equipment, setEquipment } = useEquipmentContext();
-    const { setSatEnv } = useSatEnvContext();
+    const { ewok, socket, satellites } = useEwokContext();
+    const { equipment } = useEquipmentContext();
+    const { satEnv } = useSatEnvContext();
 
     // Fetch equipment and satEnv data
     
@@ -38,6 +37,9 @@ const SignalDetails = () => {
             unit_name: '',
             cf: 0,
             bw: 0,
+            dr: 0,
+            fec: 0,
+            mod: 0,
             power: 0,
             sat: '',
             feed: '',
@@ -56,31 +58,16 @@ const SignalDetails = () => {
             conn: makeConn(),
             unit_type: 'New Group',
             unit_name: 'New Signal',
-            cf: 6500,
+            cf: 1500,
             bw: 10,
+            dr: 1,
+            fec: 1,
+            mod: 2,
             power: -90,
-            sat: 'Satellite A',
+            sat: 'ASH',
             feed: 'Feed 01'
         };
-        // POST tmpSignal and update [equipment] from db
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpSignal)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then(data => {
-            setEquipment(data);
-        })
+        socket.emit('POST', 'equipment', tmpSignal)
     };
     
     // Copy [equipment] to clipboard 
@@ -94,30 +81,27 @@ const SignalDetails = () => {
         // Prompt for input then parse as json
         let tmpEquipmentString : string | null = prompt("Paste saved sceanrio data here then click submit");
         let tmpEquipment : Array<equipment> = JSON.parse(tmpEquipmentString!);
-        // Set the server id for each signal
-        tmpEquipment.forEach(x => x.server = ewok.server);
-        // Update [equipment]
-        tmpEquipment ? setEquipment(tmpEquipment) : alert("Unable to load from provided data.");
-    };
-
+        if (tmpEquipment) {
+            // Set the server id for each signal
+            tmpEquipment.forEach(signal => {
+                signal.server = ewok.server
+                signal.active = false
+            });
+            // Update [equipment]
+            satEnv.filter(signal => signal.team == 'Instructor').forEach(signal => {
+                socket.emit('DELETE', 'satEnv', signal)
+            });
+            equipment.filter(signal => signal.team == 'Instructor').forEach(signal => {
+                socket.emit('DELETE', 'equipment', signal)
+            });
+            tmpEquipment.forEach(signal => {
+                socket.emit('POST', 'equipment', signal)
+            });
+        };
+    };   
     // DELETE signal from db
     const handleClickDelete: Function = () => {
-        if(selection.id != -1){
-            fetch(`${ewok.baseURL}/table?table=equipment`, {
-                method: 'DELETE', 
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(selection)
-            })
-            .then(response => {
-                if (response.ok) {
-                } else {
-                    throw new Error('Cannot convert response to json');
-                };
-            })
-        };
+        if(selection.id != -1) socket.emit('DELETE', 'equipment', selection)
     };
     
     // Restore selection from db
@@ -134,7 +118,8 @@ const SignalDetails = () => {
             // Get active from [equipment]
             const index = equipment.map((x: any) => x.id).indexOf(selection.id);
             const tmpActive : boolean = equipment[index].active;
-            const tmpSelection = {...selection, active: tmpActive};
+            const band = satellites.filter(x => x.sat == selection.sat)[0]?.band;
+            const tmpSelection = {...selection, active: tmpActive, band: band};
             // If active, PATCH [satEnv]
             if ( tmpActive ) {
                 const tmpSignal = {
@@ -142,48 +127,22 @@ const SignalDetails = () => {
                     server: selection.server,
                     conn: selection.conn,
                     team: selection.team,
-                    cf: selection.cf,
-                    bw: selection.bw,
+                    cf: Number(selection.cf),
+                    bw: Number(selection.bw),
+                    dr: Number(selection.dr),
+                    fec: Number(selection.fec),
+                    mod: Number(selection.mod),
                     power: selection.power,
                     sat: selection.sat,
                     feed: selection.feed,
+                    band: band,
                     stage: "ULRF"
                 };
-                fetch(`${ewok.baseURL}/table?table=satEnv`, {
-                    method: 'PATCH', 
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(tmpSignal)
-                })
-                .then(response => {
-                    if (response.ok) {
-                    } else {
-                        throw new Error('Cannot convert response to json');
-                    };
-                })
-                
+                socket.emit('PATCH', 'satEnv', tmpSignal);
             };
             // PATCH [equipment]
-            fetch(`${ewok.baseURL}/table?table=equipment`, {
-                method: 'PATCH', 
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(tmpSelection)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Cannot convert response to json');
-                };
-            })
-            .then(data => {
-                setEquipment(data)
-            });
+            console.log(tmpSelection)
+            socket.emit('PATCH', 'equipment', tmpSelection);
         };
     };
     
@@ -213,12 +172,32 @@ const SignalDetails = () => {
         setSelection(tmpSelection);
     };
     
-    const handleBWChange = ( value : string) => {
+    const handleDRChange = ( value : string) => {
         let tmpValue = 0;
         if(!isNaN(Number(value))) tmpValue = Number(value);
         let tmpSelection = {
             ...selection,
-            bw: tmpValue
+            dr: tmpValue
+        };
+        setSelection(tmpSelection);
+    }
+
+    const handleModChange = ( value : string) => {
+        let tmpValue = 0;
+        if(!isNaN(Number(value))) tmpValue = Number(value);
+        let tmpSelection = {
+            ...selection,
+            mod: tmpValue
+        };
+        setSelection(tmpSelection);
+    }
+
+    const handleFecChange = ( value : string) => {
+        let tmpValue = 0;
+        if(!isNaN(Number(value))) tmpValue = Number(value);
+        let tmpSelection = {
+            ...selection,
+            fec: tmpValue
         };
         setSelection(tmpSelection);
     }
@@ -266,100 +245,32 @@ const SignalDetails = () => {
         const [visibleSignal, setVisibleSignal] = useState<boolean>(groupSignal.active)
         const handleClickSignalEyeball = () => {
             if ( visibleSignal ) { 
-                // DELETE from satEnv
-                fetch(`${ewok.baseURL}/table?table=satEnv`, {
-                    method: 'DELETE', 
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(groupSignal)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Cannot convert response to json');
-                    };
-                })
-                .then(data => {
-                    setSatEnv(data)
-                });
+                socket.emit('DELETE', 'satEnv', groupSignal);
                 // Toggle eyeball
                 setVisibleSignal(false)
-                // PATCH equipment
-                fetch(`${ewok.baseURL}/table?table=equipment`, {
-                    method: 'PATCH', 
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({...groupSignal, active: false})
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Cannot convert response to json');
-                    };
-                })
-                .then(data => {
-                    setEquipment(data)
-                });
+                socket.emit('PATCH', 'equipment', {...groupSignal, active: false});
             } else {
-                // POST to satEnv
+                const band = satellites.filter(x => x.sat == groupSignal.sat)[0]?.band;
                 const tmpGroupSignal = {
                     id: groupSignal.id,
                     server: groupSignal.server,
                     conn: groupSignal.conn,
                     team: groupSignal.team,
-                    cf: groupSignal.cf,
-                    bw: groupSignal.bw,
+                    cf: Number(groupSignal.cf),
+                    bw: Number(groupSignal.bw),
+                    dr: Number(groupSignal.dr),
+                    fec: Number(groupSignal.fec),
+                    mod: Number(groupSignal.mod),
                     power: groupSignal.power,
+                    band: band,
                     sat: groupSignal.sat,
                     feed: groupSignal.feed,
-                    stage: "ULRF"
+                    stage: "ULIF"
                 };
-                
-                fetch(`${ewok.baseURL}/table?table=satEnv`, {
-                    method: 'POST', 
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(tmpGroupSignal)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Cannot convert response to json');
-                    };
-                })
-                .then(data => {
-                    //setSatEnv(data)
-                });
-                // Toggle eyeball
+                console.log(tmpGroupSignal)
+                socket.emit('POST', 'satEnv', tmpGroupSignal);
                 setVisibleSignal(true)
-                // PATCH equipment
-                fetch(`${ewok.baseURL}/table?table=equipment`, {
-                    method: 'PATCH', 
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({...groupSignal, active: true})
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Cannot convert response to json');
-                    };
-                })
-                .then(data => {
-                    setEquipment(data)
-                });
+                socket.emit('PATCH', 'equipment', {...groupSignal, active: true});
             }
         };
         
@@ -408,9 +319,26 @@ const SignalDetails = () => {
                     <span>MHz</span>
                 </div>
                 <div>
-                    <span>BW</span>
-                    <input type='text' value={selection?.bw} onChange={e => handleBWChange(e.target.value)}></input>
+                    <span>DR</span>
+                    <input type='text' value={selection?.dr} onChange={e => handleDRChange(e.target.value)}></input>
                     <span>MHz</span>
+                </div>
+                <div>
+                    <span>Mod</span>
+                    <select value={selection?.mod} onChange={e => handleModChange(e.target.value)}>
+                        <option value={1}>BPSK</option>
+                        <option value={2}>QPSK</option>
+                    </select>
+                    <span></span>
+                </div>
+                <div>
+                    <span>FEC</span>
+                    <select value={selection?.fec} onChange={e => handleFecChange(e.target.value)}>
+                        <option value={1}>1/2</option>
+                        <option value={3}>3/4</option>
+                        <option value={7}>7/8</option>
+                    </select>
+                    <span></span>
                 </div>
                 <div>
                     <span>Power</span>
@@ -420,9 +348,9 @@ const SignalDetails = () => {
                 <div>
                     <span>Sat</span>
                     <select value={selection?.sat} onChange={e => handleSatChange(e.target.value)}>
-                        <option value='Satellite A'>Satellite A</option>
-                        <option value='Satellite B'>Satellite B</option>
-                        <option value='Satellite C'>Satellite C</option>
+                        <option value='ASH'>ASH</option>
+                        <option value='DRSC'>DRSC</option>
+                        <option value='ArCOM'>ArCOM</option>
                     </select>
                     <span>dB</span>
                 </div>
@@ -459,6 +387,9 @@ interface equipment {
     unit_name: string,
     cf: number,
     bw: number,
+    dr: number,
+    fec: number,
+    mod: number,
     power: number,
     sat: string,
     feed: string,

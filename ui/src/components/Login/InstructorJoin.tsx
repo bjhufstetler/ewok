@@ -4,7 +4,7 @@ import { useEwokContext } from "../../context/EwokContext";
 
 const StudentLogin = () => {
     const navigate = useNavigate();
-    const { ewok, setEwok } = useEwokContext();
+    const { ewok, setEwok, socket } = useEwokContext();
     const [server, setServer] = useState<string>('');
     const [serverList, setServerList] = useState([]);
     useEffect(() => {
@@ -21,6 +21,7 @@ const StudentLogin = () => {
     const handleClickJoin = () => {
         const tmpEwok = {...ewok, team: 'Instructor', server: server}
         setEwok(tmpEwok)
+        socket.emit('JOIN', server)
         navigate("/instructor")
     }
     return(

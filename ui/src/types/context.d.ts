@@ -5,6 +5,15 @@ interface IEwokContext {
         baseURL: string,
     },
     setEwok: any,
+    socket: any,
+    satellites: [{
+        sat: string,
+        band: string, 
+        uc: number, 
+        dc: number, 
+        ttf: number, 
+        fspl: number
+    }]
 };
 
 interface IEquipmentContext {
@@ -33,11 +42,16 @@ type RFEnv = [{
     conn: string,
     team: string, 
     cf: number, 
-    bw: number, 
+    dr: number, 
+    mod: number,
+    fec: number,
     power: number, 
     sat: string,
     feed: string,
-    stage: string
+    stage: string,
+    lb: boolean,
+    active: boolean,
+    band: string
 }];
 
 type equipment = [{
@@ -52,5 +66,8 @@ type equipment = [{
     power: number,
     sat: string,
     feed: string,
-    active: boolean
+    active: boolean,
+    dr: number,
+    mod: number,
+    fec: number
 }];

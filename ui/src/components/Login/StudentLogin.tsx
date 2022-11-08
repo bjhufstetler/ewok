@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useEwokContext } from "../../context/EwokContext";
 import { useState } from "react";
+import { Socket } from "socket.io-client";
 
 const StudentLogin = () => {
     const navigate = useNavigate();
-    const { ewok, setEwok } = useEwokContext();
+    const { ewok, setEwok, socket } = useEwokContext();
     const [ auth, setAuth ] = useState<{team: string, server: string}>({team: "Victor", server: ""})
     const handleChangeServer = (e:any) => {
         const tmpAuth = {
@@ -26,6 +27,7 @@ const StudentLogin = () => {
             team: auth.team,
             server: auth.server
         };
+        socket.emit('JOIN', auth.server)
         setEwok(tmpEwok);
         navigate("/student")
     };

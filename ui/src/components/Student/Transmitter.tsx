@@ -1,48 +1,30 @@
 import { useEffect, useState } from 'react';
-import { useSatEnvContext, useEwokContext, useEquipmentContext } from "../../context/EwokContext";
+import { useEwokContext, useEquipmentContext } from "../../context/EwokContext";
 import './Transmitter.css'
 
 const Transmitter = () => {
-    const { equipment, setEquipment } = useEquipmentContext();
-    const { ewok } = useEwokContext();
-    const { satEnv, setSatEnv } = useSatEnvContext();
-
-    let tmpAntenna = equipment.filter(x => x.unit_type == 'Antenna')[0];
-    const [antenna, setAntenna] = useState(tmpAntenna);
-    let tmpTX = equipment.filter(x => x.unit_type == 'TX1' && x.unit_name == antenna?.feed)[0];
+    const { equipment } = useEquipmentContext();
+    const { socket } = useEwokContext();
+    
+    let tmpAntenna = [...equipment.filter(x => x.unit_type == 'Antenna')][0];
+    //const [antenna, setAntenna] = useState(tmpAntenna);
+    let tmpTX = equipment.filter(x => x.unit_type == 'TX' && x.unit_name == tmpAntenna?.feed)[0];
     const [tx, setTX] = useState(tmpTX);
-    const [settings, setSettings] = useState({cf: 1000, bw: 1, power: -100});
+    const [settings, setSettings] = useState({cf: 1000, power: -100, mod: 2, fec: 1, dr: 1});
 
     useEffect(() => {
-        tmpAntenna = equipment.filter(x => x.unit_type == 'Antenna')[0];
-        tmpTX = equipment.filter(x => x.unit_type == 'TX1' && x.unit_name == antenna?.feed)[0];
-        setAntenna(tmpAntenna);
+        tmpAntenna = [...equipment.filter(x => x.unit_type == 'Antenna')][0];
+        tmpTX = [...equipment.filter(x => x.unit_type == 'TX' && x.unit_name == tmpAntenna?.feed)][0];
+        //setAntenna(tmpAntenna);
         setTX(tmpTX);
     }, [equipment])
 
     const handleClickModem = (num: string) => {
         const tmpEquipment = {
-            ...antenna,
+            ...tmpAntenna,
             feed: num,
         }
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'PATCH', 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpEquipment)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then(data => {
-            setEquipment(data)
-        });
+        socket.emit('PATCH', 'equipment', tmpEquipment)
     }
 
     const handleChangeCF = (e: any) => {
@@ -52,10 +34,10 @@ const Transmitter = () => {
         };
         setSettings(tmpSettings);
     };
-    const handleChangeBW = (e: any) => {
+    const handleChangeDR = (e: any) => {
         const tmpSettings = {
             ...settings,
-            bw: Number(e.target.value)
+            dr: Number(e.target.value)
         };
         setSettings(tmpSettings);
     };
@@ -66,32 +48,52 @@ const Transmitter = () => {
         };
         setSettings(tmpSettings);
     };
+    const handleChangeFec = (e: any) => {
+        const tmpSettings = {
+            ...settings,
+            fec: Number(e.target.value)
+        };
+        setSettings(tmpSettings);
+    };
+    const handleChangeMod = (e: any) => {
+        const tmpSettings = {
+            ...settings,
+            mod: Number(e.target.value)
+        };
+        setSettings(tmpSettings);
+    };
+
 
     const handleClickUpdate = () => {
         const tmpEquipment = {
             ...tx,
             cf: settings.cf,
-            bw: settings.bw,
+            dr: settings.dr,
+            mod: settings.mod,
+            fec: settings.fec,
             power: settings.power
         }
-        fetch(`${ewok.baseURL}/table?table=equipment`, {
-            method: 'PATCH', 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(tmpEquipment)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Cannot convert response to json');
-            };
-        })
-        .then(data => {
-            setEquipment(data)
-        });
+        socket.emit('PATCH', 'equipment', tmpEquipment)
+        if(tx.active){
+            const tmpSignal = {
+                id: tx.id,
+                server: tx.server,
+                conn: tx.conn,
+                team: tx.team,
+                cf: settings.cf,
+                dr: settings.dr,
+                mod: settings.mod,
+                fec: settings.fec,
+                power: settings.power,
+                band: tmpAntenna.unit_name,
+                sat: tmpAntenna.sat,
+                feed: tx.feed,
+                stage: "ULRF",
+                lb: tmpAntenna?.power == 0 ? false : true,
+                active: tmpAntenna.active
+            }
+            socket.emit('PATCH', 'satEnv', tmpSignal)
+        }
     }
 
     const handleClickTX = () => {
@@ -101,90 +103,55 @@ const Transmitter = () => {
             conn: tx.conn,
             team: tx.team,
             cf: tx.cf,
-            bw: tx.bw,
+            dr: tx.dr,
+            mod: tx.mod,
+            fec: tx.fec,
+            band: tmpAntenna.unit_name,
             power: tx.power,
-            sat: antenna.sat,
+            sat: tmpAntenna.sat,
             feed: tx.feed,
-            stage: "ULRF"
+            stage: "ULRF",
+            lb: tmpAntenna?.power == 0 ? false : true,
+            active: tmpAntenna?.active
         }
-        let tmpEquipment = {...equipment[0]};
         if(tx.active) {
-            fetch(`${ewok.baseURL}/table?table=satEnv`, {
-                method: 'DELETE', 
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(tmpSignal)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Cannot convert response to json');
-                };
-            })
-            .then(data => {
-                setSatEnv(data)
-            })
-            let tmpEquipment = {
+            socket.emit('DELETE', 'satEnv', tmpSignal)
+            const tmpEquipment = {
                 ...tx,
                 active: !tx.active
             }
-            fetch(`${ewok.baseURL}/table?table=equipment`, {
-                method: 'PATCH', 
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(tmpEquipment)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Cannot convert response to json');
-                };
-            })
-            .then(data => {
-                setEquipment(data)
-            })
+            socket.emit('PATCH', 'equipment', tmpEquipment)
         } else {
-            fetch(`${ewok.baseURL}/table?table=satEnv`, {
-                method: 'POST', 
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(tmpSignal)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Cannot convert response to json');
-                };
-            })
-            tmpEquipment = {
+            socket.emit('POST', 'satEnv', tmpSignal)
+            const tmpEquipment = {
                 ...tx,
                 active: !tx.active
             }
-            fetch(`${ewok.baseURL}/table?table=equipment`, {
-                method: 'PATCH', 
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(tmpEquipment)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Cannot convert response to json');
-                };
-            })
+            socket.emit('PATCH', 'equipment', tmpEquipment)
         }
+    }
+
+    const TxModemSelect = () => {
+        let txModemSelect: any = [];
+        const modems = equipment.filter((modem: any) => modem.unit_type == "TX");
+        ['1', '2', '3', '4', '5', '6', '7', '8'].forEach(x => {
+            const modemActive = modems?.filter((modem: any) => modem.unit_name == x)[0]?.active;
+            const selected = tx?.unit_name == x;
+            let className = 'button'
+            selected ?
+                modemActive ?
+                    className = 'buttonOnSelected'
+                    : className = 'buttonSelected'
+                : modemActive ?
+                    className = 'buttonOn'
+                    :className = 'buttonOff'
+            txModemSelect.push(<button key={x} className={className} onClick={() => handleClickModem(x)}>{x}</button>)
+        })
+        return(
+            <>
+                {txModemSelect}
+            </>
+        )
     }
 
     return(
@@ -192,41 +159,54 @@ const Transmitter = () => {
             <span>Transmitter</span>
             <div className='txBody'>
                 <div className='txModemSelect'>
-                    <button onClick={() => handleClickModem('1')}>1</button>
-                    <button onClick={() => handleClickModem('2')}>2</button>
-                    <button onClick={() => handleClickModem('3')}>3</button>
-                    <button onClick={() => handleClickModem('4')}>4</button>
-                    <button onClick={() => handleClickModem('5')}>5</button>
-                    <button onClick={() => handleClickModem('6')}>6</button>
-                    <button onClick={() => handleClickModem('7')}>7</button>
-                    <button onClick={() => handleClickModem('8')}>8</button>
+                    <TxModemSelect />
+                    
                 </div> 
                 <div className='txModemOutputs'>
                     <span className='label'>Frequency:</span>    
                     <span className='value'>{tx?.cf}</span>
                     <span className='unit'>MHz</span>
-                    <span className='label'>Bandwidth:</span>    
-                    <span className='value'>{tx?.bw}</span>
+                    <span className='label'>Data Rate:</span>    
+                    <span className='value'>{tx?.dr}</span>
                     <span className='unit'>MHz</span>
+                    <span className='label'>Modulation:</span>    
+                    <span className='value'>{tx?.mod}</span>
+                    <span className='unit'></span>
+                    <span className='label'>FEC:</span>    
+                    <span className='value'>{tx?.fec}</span>
+                    <span className='unit'></span>
                     <span className='label'>Power:</span>    
                     <span className='value'>{tx?.power}</span>
                     <span className='unit'>dB</span>
                     <span>TX</span>
                     {
                         tx?.active ? 
-                        <button onClick={() => handleClickTX()}>ON</button>
+                        <button className='buttonOn' onClick={() => handleClickTX()}>ON</button>
                         :<button onClick={() => handleClickTX()}>OFF</button>
                     }
                 </div>       
                 <div className='txModemOutputs'>
                     <span className='label'>Frequency:</span>    
-                    <input type='text' value={settings.cf} onChange={e => handleChangeCF(e)}></input>
+                    <input type='text' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
                     <span className='unit'>MHz</span>
-                    <span className='label'>Bandwidth:</span>    
-                    <input type='text' value={settings.bw} onChange={e => handleChangeBW(e)}></input>
+                    <span className='label'>Data Rate:</span>    
+                    <input type='text' value={settings?.dr} onChange={e => handleChangeDR(e)}></input>
                     <span className='unit'>MHz</span>
+                    <span className='label'>Modulation:</span>    
+                    <select value={settings?.mod} onChange={e => handleChangeMod(e)}>
+                        <option value={1}>BPSK</option>
+                        <option value={2}>QPSK</option>
+                    </select>
+                    <span className='unit'></span>
+                    <span className='label'>FEC:</span>    
+                    <select value={settings?.fec} onChange={e => handleChangeFec(e)}>
+                        <option value={1}>1/2</option>
+                        <option value={3}>3/4</option>
+                        <option value={7}>7/8</option>
+                    </select>
+                    <span className='unit'></span>
                     <span className='label'>Power:</span>    
-                    <input type='text' value={settings.power} onChange={e => handleChangePower(e)}></input>
+                    <input type='text' value={settings?.power} onChange={e => handleChangePower(e)}></input>
                     <span className='unit'>dB</span>
                     <span></span>
                     <button onClick={() => handleClickUpdate()}>Update</button>
