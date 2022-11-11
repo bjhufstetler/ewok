@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useEwokContext } from "../../context/EwokContext";
+import { useEquipmentContext, useEwokContext, useSatEnvContext } from "../../context/EwokContext";
 
 const StudentLogin = () => {
     const navigate = useNavigate();
     const { ewok, setEwok, socket } = useEwokContext();
+    const { setEquipment } = useEquipmentContext();
+    const { setSatEnv } = useSatEnvContext();
     const [server, setServer] = useState<string>('');
     const [serverList, setServerList] = useState([]);
     useEffect(() => {
@@ -21,7 +23,14 @@ const StudentLogin = () => {
     const handleClickJoin = () => {
         const tmpEwok = {...ewok, team: 'Instructor', server: server}
         setEwok(tmpEwok)
-        socket.emit('JOIN', server)
+        socket.emit('JOIN', server, 'Instructor')
+        fetch(`${ewok.baseURL}/equipment?server=${server}&team=Instructor`)
+            .then(res => res.json())
+            .then(data => setEquipment(data))
+        fetch(`${ewok.baseURL}/satEnv?server=${server}`)
+            .then(res => res.json())
+            .then(data => setSatEnv(data))
+        navigate("/student");
         navigate("/instructor")
     }
     return(

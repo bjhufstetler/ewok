@@ -67,6 +67,7 @@ const SignalDetails = () => {
             sat: 'ASH',
             feed: 'Feed 01'
         };
+        console.log(tmpSignal)
         socket.emit('POST', 'equipment', tmpSignal)
     };
     
@@ -119,7 +120,7 @@ const SignalDetails = () => {
             const index = equipment.map((x: any) => x.id).indexOf(selection.id);
             const tmpActive : boolean = equipment[index].active;
             const band = satellites.filter(x => x.sat == selection.sat)[0]?.band;
-            const tmpSelection = {...selection, active: tmpActive, band: band};
+            const tmpSelection = {...selection, active: tmpActive};
             // If active, PATCH [satEnv]
             if ( tmpActive ) {
                 const tmpSignal = {
@@ -128,7 +129,6 @@ const SignalDetails = () => {
                     conn: selection.conn,
                     team: selection.team,
                     cf: Number(selection.cf),
-                    bw: Number(selection.bw),
                     dr: Number(selection.dr),
                     fec: Number(selection.fec),
                     mod: Number(selection.mod),
@@ -140,8 +140,6 @@ const SignalDetails = () => {
                 };
                 socket.emit('PATCH', 'satEnv', tmpSignal);
             };
-            // PATCH [equipment]
-            console.log(tmpSelection)
             socket.emit('PATCH', 'equipment', tmpSelection);
         };
     };
@@ -234,7 +232,7 @@ const SignalDetails = () => {
             <div className='signalGroup' key= { group }>
                 <span>{group}</span> 
                 <div></div>
-                {equipment.filter((x: any) => x.unit_type == group).map((groupSignal: any, groupSignalIndex: number) => (
+                {equipment.filter((x: any) => x.unit_type == group).sort((a,b) => (a.unit_name > b.unit_name) ? 1 : ((b.unit_name > a.unit_name) ? -1 : 0)).map((groupSignal: any, groupSignalIndex: number) => (
                     <SignalComponent key={ groupSignalIndex } groupSignal= { groupSignal }/>
                 ))}
             </div>
@@ -257,7 +255,6 @@ const SignalDetails = () => {
                     conn: groupSignal.conn,
                     team: groupSignal.team,
                     cf: Number(groupSignal.cf),
-                    bw: Number(groupSignal.bw),
                     dr: Number(groupSignal.dr),
                     fec: Number(groupSignal.fec),
                     mod: Number(groupSignal.mod),
@@ -267,9 +264,9 @@ const SignalDetails = () => {
                     feed: groupSignal.feed,
                     stage: "ULIF"
                 };
-                console.log(tmpGroupSignal)
                 socket.emit('POST', 'satEnv', tmpGroupSignal);
                 setVisibleSignal(true)
+                console.log(groupSignal)
                 socket.emit('PATCH', 'equipment', {...groupSignal, active: true});
             }
         };
@@ -298,7 +295,7 @@ const SignalDetails = () => {
                     <TbPlus onClick={() => handleClickPlus()}/>
                 </div>
                 <hr></hr>
-                {groups?.map((group: string, groupID: number) => {
+                {groups?.sort((a: any,b: any) => (a.unit_type > b.unit_type) ? 1 : ((b.unit_type > a.unit_type) ? -1 : 0)).map((group: string, groupID: number) => {
                     return(<GroupComponent key={groupID} group={ group } />)
                 })}
                 <button onClick={() => handleClickSaveScenario()}>Save Scenario</button>

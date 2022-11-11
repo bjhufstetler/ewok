@@ -7,7 +7,6 @@ const Transmitter = () => {
     const { socket } = useEwokContext();
     
     let tmpAntenna = [...equipment.filter(x => x.unit_type == 'Antenna')][0];
-    //const [antenna, setAntenna] = useState(tmpAntenna);
     let tmpTX = equipment.filter(x => x.unit_type == 'TX' && x.unit_name == tmpAntenna?.feed)[0];
     const [tx, setTX] = useState(tmpTX);
     const [settings, setSettings] = useState({cf: 1000, power: -100, mod: 2, fec: 1, dr: 1});
@@ -15,7 +14,6 @@ const Transmitter = () => {
     useEffect(() => {
         tmpAntenna = [...equipment.filter(x => x.unit_type == 'Antenna')][0];
         tmpTX = [...equipment.filter(x => x.unit_type == 'TX' && x.unit_name == tmpAntenna?.feed)][0];
-        //setAntenna(tmpAntenna);
         setTX(tmpTX);
     }, [equipment])
 
@@ -115,6 +113,7 @@ const Transmitter = () => {
             active: tmpAntenna?.active
         }
         if(tx.active) {
+            console.log(tx)
             socket.emit('DELETE', 'satEnv', tmpSignal)
             const tmpEquipment = {
                 ...tx,

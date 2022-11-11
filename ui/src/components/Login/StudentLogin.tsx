@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useEwokContext } from "../../context/EwokContext";
+import { useEquipmentContext, useEwokContext, useSatEnvContext } from "../../context/EwokContext";
 import { useState } from "react";
-import { Socket } from "socket.io-client";
 
 const StudentLogin = () => {
     const navigate = useNavigate();
     const { ewok, setEwok, socket } = useEwokContext();
+    const { setEquipment } = useEquipmentContext();
+    const { setSatEnv } = useSatEnvContext();
     const [ auth, setAuth ] = useState<{team: string, server: string}>({team: "Victor", server: ""})
     const handleChangeServer = (e:any) => {
         const tmpAuth = {
@@ -27,9 +28,15 @@ const StudentLogin = () => {
             team: auth.team,
             server: auth.server
         };
-        socket.emit('JOIN', auth.server)
+        socket.emit('JOIN', auth.server, auth.team)
         setEwok(tmpEwok);
-        navigate("/student")
+        fetch(`${ewok.baseURL}/equipment?server=${auth.server}&team=${auth.team}`)
+            .then(res => res.json())
+            .then(data => setEquipment(data))
+        fetch(`${ewok.baseURL}/satEnv?server=${auth.server}`)
+            .then(res => res.json())
+            .then(data => setSatEnv(data))
+        navigate("/student");
     };
     return(
         <div className="Card">

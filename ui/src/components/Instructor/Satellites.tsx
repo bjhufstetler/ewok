@@ -53,7 +53,7 @@ const Satellites = () => {
                 fill: 'toself', hoveron: 'points+fills', opacity: 0.6,
             });
         });
-
+        /*
         satEnv.filter((signal : any) => signal.sat == sat ).map((signal : any, signalID: any) => {
             const uc = signal.team == 'Instructor' ? satellites.filter(x => x.sat == signal.sat)[0]?.uc : satellites.filter(x => x.band == signal.band)[0]?.uc;
             const teamIndex = teamData.map(x => x.team).indexOf(signal.team);
@@ -77,7 +77,7 @@ const Satellites = () => {
                 showlegend: false 
             });
         });
-
+        */
         plotData.push({
             x: [5000, 5000, lb, lb],
             y: [-100, -85, -85, -100],

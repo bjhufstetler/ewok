@@ -86,6 +86,13 @@ const Antenna = () => {
             cf: Number(settings?.cf)
         };
         socket.emit('PATCH', 'equipment', tmpEquipment)
+        satEnv.filter(x => x.team == ewok.team).forEach(signal => {
+            const tmpSignal = {
+                ...signal,
+                band: settings?.unit_name
+            };
+            socket.emit('PATCH', 'satEnv', tmpSignal);
+        })
     }
 
     return(

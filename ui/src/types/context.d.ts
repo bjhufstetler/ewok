@@ -37,7 +37,7 @@ type SatEnvProviderProps = {
 }
 
 type RFEnv = [{
-    id: number,
+    id?: number,
     server: string,
     conn: string,
     team: string, 
@@ -55,7 +55,7 @@ type RFEnv = [{
 }];
 
 type equipment = [{
-    id: number,
+    id?: number,
     conn: string,
     server: string,
     team: string,

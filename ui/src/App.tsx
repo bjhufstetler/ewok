@@ -1,8 +1,33 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Landing, StudentLogin, StudentPage, InstructorLogin, InstructorCreate, InstructorJoin, InstructorPage, Header, Help } from "./components";
+import { useEquipmentContext, useEwokContext, useSatEnvContext } from "./context/EwokContext";
+import { useEffect, useCallback } from 'react';
 import './App.css';
 
 function App() {
+
+  const { socket } = useEwokContext();
+  const { setEquipment } = useEquipmentContext();
+  const { setSatEnv } = useSatEnvContext();
+  
+  const handleEquipmentUpdate = (update: any) => {
+    console.log(update)
+    setEquipment(update);
+  };
+  
+  const handleSatEnvUpdate = (update: any) => {
+    setSatEnv(update);
+  };
+
+  useEffect(() => {
+    socket.on('equipment_patch', handleEquipmentUpdate);
+    socket.on('equipment_post', handleEquipmentUpdate);
+    socket.on('equipment_delete', handleEquipmentUpdate);
+    socket.on('satEnv_patch', handleSatEnvUpdate);
+    socket.on('satEnv_post', handleSatEnvUpdate);
+    socket.on('satEnv_delete', handleSatEnvUpdate);
+  }, [socket])
+
   return (
     <Router>
       <div className="App">

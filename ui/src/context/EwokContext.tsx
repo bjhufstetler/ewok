@@ -4,8 +4,8 @@ import { useFetch } from "../hooks/useFetch";
 import { io } from 'socket.io-client';
 
 const defaultEwokContext = {
-    team: "Victor",
-    server: "0a2b",
+    team: "",
+    server: "",
     baseURL: 'http://localhost:8080'
 };
 
@@ -16,13 +16,15 @@ const EwokProvider: FunctionComponent<EwokProviderProps> = ({ children }) => {
     const setEwok = (update: any) => {
         setEwokState(update)
     };
-    const socket = io('http://localhost:3000');
+    
     const satellites = [
         {sat: 'ASH', band: 'C', uc: 5100, dc: -5100, ttf: 20, fspl: 15},
         {sat: 'DRSC', band: 'Ku', uc: 11050, dc: -11050, ttf: 15.25, fspl: 9},
         {sat: 'ArCOM', band: 'Ka', uc: 30025, dc: -30025, ttf: 7.5, fspl: 6}
     ];
     
+    const socket = io('http://localhost:3000');
+
     const value: any = useMemo(() => ({
         ewok, setEwok, socket, satellites
     }), [ewok]);
@@ -36,33 +38,9 @@ const EwokProvider: FunctionComponent<EwokProviderProps> = ({ children }) => {
 
 const EquipmentContext = createContext({} as IEquipmentContext);
 const EquipmentProvider: FunctionComponent<EquipmentProviderProps> = ({ children }) => {
-    const { ewok, socket } = useEwokContext();
+    const { ewok } = useEwokContext();
     const { data: equipment, setData: setEquipment } = useFetch(`/equipment?server=${ewok.server}&team=${ewok.team}`);
-    socket.on('equipment_patch', (update: any) => {
-        if ( update.server == ewok.server && update.team == ewok.team) {
-            const index = equipment.map((x: any) => x.id).indexOf(update.id)
-            const tmpEquipment = [...equipment];
-            tmpEquipment[index] = update;
-            setEquipment(tmpEquipment);
-            console.log('patch heard')
-        } 
-    });
-    socket.on('equipment_post', (update: any) => {
-        if ( update.server == ewok.server && update.team == ewok.team) {
-            const tmpEquipment = [...equipment];
-            tmpEquipment.push(update);
-            setEquipment(tmpEquipment);
-        }
-    });
-    socket.on('equipment_delete', (update: any) => {
-        if ( update.server == ewok.server && update.team == ewok.team) {
-            const index = equipment.map((x: any) => x.id).indexOf(update.id)
-            const tmpEquipment = [...equipment];
-            tmpEquipment.splice(index,1);
-            setEquipment(tmpEquipment);
-        }
-    });
-
+    
 
     const value: any = useMemo(() => ({
         equipment, setEquipment
@@ -77,32 +55,9 @@ const EquipmentProvider: FunctionComponent<EquipmentProviderProps> = ({ children
 
 const SatEnvContext = createContext({} as ISatEnvContext);
 const SatEnvProvider: FunctionComponent<SatEnvProviderProps> = ({ children }) => {
-    const { ewok, socket } = useEwokContext();
+    const { ewok } = useEwokContext();
     const { data: satEnv, setData: setSatEnv } = useFetch(`/satEnv?server=${ewok.server}`);
-    socket.on('satEnv_patch', (update: any) => {
-        if ( update.server == ewok.server ) {
-            const index = satEnv.map((x: any) => x.id).indexOf(update.id)
-            const tmpSatEnv = [...satEnv];
-            tmpSatEnv[index] = update;
-            setSatEnv(tmpSatEnv);
-        }
-    });
-    socket.on('satEnv_post', (update: any) => {
-        if ( update.server == ewok.server ) {
-            const tmpSatEnv = [...satEnv];
-            tmpSatEnv.push(update);
-            setSatEnv(tmpSatEnv);
-        }
-        console.log('I heard that')
-    });
-    socket.on('satEnv_delete', (update: any) => {
-        if ( update.server == ewok.server ) {
-            const index = satEnv.map((x: any) => x.id).indexOf(update.id)
-            const tmpSatEnv = [...satEnv];
-            tmpSatEnv.splice(index,1);
-            setSatEnv(tmpSatEnv);
-        }
-    });
+    
 
     const value: any = useMemo(() => ({
         satEnv, setSatEnv
