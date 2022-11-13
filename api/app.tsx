@@ -1,22 +1,24 @@
-const express = require('express');
+var express = require("express");
 const app = express();
-const cors = require('cors');
-const knex = require('knex')(require('./knexfile.js')['development']);
-const io = require('socket.io')(3000, {
-    cors: {
-        origin: ['http://localhost:5173']
-    }
-})
 
+const http = require('http').createServer(app);
+const io = require('socket.io')(http, {
+    cors: { 
+        origin: 'http://localhost:3000'
+    }
+});
+
+const knex = require('knex')(require('./knexfile.js')['development']);
 
 const port = 8080;
+
+const cors = require('cors');
 app.use(cors());
 app.use(express.json())
 
-let equipment = [];
-let satEnv = [];
+http.listen(port, () => console.log(`API listening on port ${port}`));
 
-io.on('connection', socket => {
+io.on('connection', (socket) => {
     console.log(socket.id)
     socket.on('JOIN', (server, team) => {
         socket.join(server)
@@ -113,8 +115,7 @@ io.on('connection', socket => {
         };
     });
 });
- 
-app.listen(port, () => console.log(`API listening on port ${port}`));
+
 
 app.get('/server', (req, res) => {
     knex

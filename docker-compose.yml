@@ -1,4 +1,5 @@
 version: '3'
+
 volumes:
   pgdatasource:
 
@@ -26,12 +27,13 @@ services:
       - pgdatasource:/var/lib/postgresql/data
 
   ewok-api:
-    build: ./api
+    build: api/
     container_name: api
     depends_on:
       ewok-db:
         condition: service_healthy
-    ports: '8080:8080'
+    ports: 
+      - '8080:8080'
     networks:
       - app-network
     environment:
@@ -44,18 +46,19 @@ services:
     volumes:
       - type: bind
         source: ./api
-        target: /app'
-    command: npm run start:dev
+        target: /app
+    command: npm run start
 
   ewok-ui:
-    build: ./ui
+    build: ui/
+    tty: true
     container_name: ui
     environment:
       - FAST_REFRESH=false
     depends_on:
-      - ewok-api
+      - 'ewok-api'
     ports:
-      - '5173:5173'
+      - '3000:3000'
     networks:
       - app-network
     volumes:

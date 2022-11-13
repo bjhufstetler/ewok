@@ -2,11 +2,16 @@ import PropTypes from "prop-types";
 import { FunctionComponent, useContext, useState, useMemo, createContext } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { io } from 'socket.io-client';
+import config from '../config';
+//const configIndex = process.env.REACT_APP_NODE_ENV ? 1 : 0;
+const configIndex = 0;
+const apiUrl: string = config[configIndex].apiUrl;
+const socketUrl: string = config[configIndex].socketUrl;
 
 const defaultEwokContext = {
     team: "",
     server: "",
-    baseURL: 'http://localhost:8080'
+    baseURL: 'apiUrl'
 };
 
 const EwokContext = createContext({} as IEwokContext);
@@ -23,7 +28,7 @@ const EwokProvider: FunctionComponent<EwokProviderProps> = ({ children }) => {
         {sat: 'ArCOM', band: 'Ka', uc: 30025, dc: -30025, ttf: 7.5, fspl: 6}
     ];
     
-    const socket = io('http://localhost:3000');
+    const socket = io(socketUrl);
 
     const value: any = useMemo(() => ({
         ewok, setEwok, socket, satellites

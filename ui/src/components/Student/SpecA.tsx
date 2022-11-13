@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useEwokContext, useEquipmentContext, useSatEnvContext } from "../../context/EwokContext";
 import { useEffect, useState } from 'react';
 import './StudentPage.css';
@@ -24,7 +25,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     }, [plotTimer]);
 
     // Hold settings in state noting that only one piece of equipment is being used
-    const tmpSettings = [...equipment]?.filter(x => {
+    const tmpSettings = [...equipment]?.filter((x: any) => {
         x.unit_type == 'SpecA' &&
         x.unit_name == unit_name
     })[0];

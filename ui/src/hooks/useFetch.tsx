@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-
-const baseUrl = 'http://localhost:8080';
+import config from '../config';
+//const configIndex = process.env.REACT_APP_NODE_ENV ? 1 : 0;
+const configIndex = 0;
+const apiUrl: string = config[configIndex].apiUrl;
 
 export const useFetch = (urlRoute: string) => {
   const [data, setData] = useState<any>([]);
@@ -8,7 +10,7 @@ export const useFetch = (urlRoute: string) => {
   const [load, setLoad] = useState(true);
 
   useEffect(() => {
-      fetch(baseUrl + urlRoute)
+      fetch(apiUrl + urlRoute)
       .then(response => {
         if (response.ok) {
           return response.json();

@@ -1,7 +1,7 @@
 import './InstructorPage.css';
 import SignalDetails from './SignalDetails';
 import Satellites from './Satellites';
-import { Subheader } from '../';
+import { Subheader } from '..';
 
 const InstructorPage = () => {
     return(
