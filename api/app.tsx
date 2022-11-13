@@ -10,7 +10,7 @@ const io = require('socket.io')(http, {
 
 const knex = require('knex')(require('./knexfile.js')['development']);
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 const cors = require('cors');
 app.use(cors());

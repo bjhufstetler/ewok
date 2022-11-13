@@ -5,7 +5,6 @@ import { io } from 'socket.io-client';
 import config from '../config';
 //const configIndex = process.env.REACT_APP_NODE_ENV ? 1 : 0;
 const configIndex = 0;
-const apiUrl: string = config[configIndex].apiUrl;
 const socketUrl: string = config[configIndex].socketUrl;
 
 const defaultEwokContext = {
