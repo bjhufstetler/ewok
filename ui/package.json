@@ -1,6 +1,7 @@
 {
   "name": "ui",
   "version": "0.1.0",
+  "homepage": "https://bjhufstetler.github.io/ewok",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
@@ -23,7 +24,9 @@
     "start": "node --max_old_space_size=8192 node_modules/.bin/react-scripts start",
     "build": "node --max_old_space_size=8192 node_modules/.bin/react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -45,6 +48,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.9",
-    "@types/react-plotly.js": "^2.5.2"
+    "@types/react-plotly.js": "^2.5.2",
+    "gh-pages": "^4.0.0"
   }
 }
