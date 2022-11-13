@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ewok/static/css/main.310d1f5b.css",
+    "main.js": "/ewok/static/js/main.853d4d21.js",
+    "static/js/787.349b0e60.chunk.js": "/ewok/static/js/787.349b0e60.chunk.js",
+    "index.html": "/ewok/index.html",
+    "main.310d1f5b.css.map": "/ewok/static/css/main.310d1f5b.css.map",
+    "main.853d4d21.js.map": "/ewok/static/js/main.853d4d21.js.map",
+    "787.349b0e60.chunk.js.map": "/ewok/static/js/787.349b0e60.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.310d1f5b.css",
+    "static/js/main.853d4d21.js"
+  ]
+}
