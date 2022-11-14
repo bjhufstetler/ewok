@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TbPlus, TbEyeOff, TbEye } from 'react-icons/tb';
-import { useEwokContext, useEquipmentContext, useSatEnvContext, SatEnvContext } from '../../context/EwokContext';
+import { useEwokContext, useEquipmentContext, useSatEnvContext } from '../../context/EwokContext';
 
 // TODO: connect equipment to db instead of state
 
@@ -49,8 +49,7 @@ const SignalDetails = () => {
     
     // Handle sidebar buttons
     const handleClickPlus: Function = () => {
-        // Clone equipment
-        let tmpEquipment = [...equipment];
+        
         // Create tmpSignal from template
         const tmpSignal = {
             ...initSignal,
@@ -89,10 +88,10 @@ const SignalDetails = () => {
                 signal.active = false
             });
             // Update [equipment]
-            satEnv.filter(signal => signal.team == 'Instructor').forEach(signal => {
+            satEnv.filter(signal => signal.team === 'Instructor').forEach(signal => {
                 socket.emit('DELETE', 'satEnv', signal)
             });
-            equipment.filter(signal => signal.team == 'Instructor').forEach(signal => {
+            equipment.filter(signal => signal.team === 'Instructor').forEach(signal => {
                 socket.emit('DELETE', 'equipment', signal)
             });
             tmpEquipment.forEach(signal => {
@@ -102,13 +101,13 @@ const SignalDetails = () => {
     };   
     // DELETE signal from db
     const handleClickDelete: Function = () => {
-        if(selection.id != -1) socket.emit('DELETE', 'equipment', selection)
+        if(selection.id !== -1) socket.emit('DELETE', 'equipment', selection)
     };
     
     // Restore selection from db
     const handleClickRevert: Function = () => {
         if( selection.id > -1 ) {
-            const tmpSignal = equipment.filter((x: any) => x.id == selection.id)[0];
+            const tmpSignal = equipment.filter((x: any) => x.id === selection.id)[0];
             setSelection(tmpSignal as any)
         };
     };
@@ -119,7 +118,7 @@ const SignalDetails = () => {
             // Get active from [equipment]
             const index = equipment.map((x: any) => x.id).indexOf(selection.id);
             const tmpActive : boolean = equipment[index].active;
-            const band = satellites.filter(x => x.sat == selection.sat)[0]?.band;
+            const band = satellites.filter(x => x.sat === selection.sat)[0]?.band;
             const tmpSelection = {...selection, active: tmpActive};
             // If active, PATCH [satEnv]
             if ( tmpActive ) {
@@ -232,7 +231,7 @@ const SignalDetails = () => {
             <div className='signalGroup' key= { group }>
                 <span>{group}</span> 
                 <div></div>
-                {equipment.filter((x: any) => x.unit_type == group).sort((a,b) => (a.unit_name > b.unit_name) ? 1 : ((b.unit_name > a.unit_name) ? -1 : 0)).map((groupSignal: any, groupSignalIndex: number) => (
+                {equipment.filter((x: any) => x.unit_type === group).sort((a,b) => (a.unit_name > b.unit_name) ? 1 : ((b.unit_name > a.unit_name) ? -1 : 0)).map((groupSignal: any, groupSignalIndex: number) => (
                     <SignalComponent key={ groupSignalIndex } groupSignal= { groupSignal }/>
                 ))}
             </div>
@@ -248,7 +247,7 @@ const SignalDetails = () => {
                 setVisibleSignal(false)
                 socket.emit('PATCH', 'equipment', {...groupSignal, active: false});
             } else {
-                const band = satellites.filter(x => x.sat == groupSignal.sat)[0]?.band;
+                const band = satellites.filter(x => x.sat === groupSignal.sat)[0]?.band;
                 const tmpGroupSignal = {
                     id: groupSignal.id,
                     server: groupSignal.server,
@@ -262,7 +261,8 @@ const SignalDetails = () => {
                     band: band,
                     sat: groupSignal.sat,
                     feed: groupSignal.feed,
-                    stage: "ULIF"
+                    stage: "ULIF",
+                    active: true
                 };
                 socket.emit('POST', 'satEnv', tmpGroupSignal);
                 setVisibleSignal(true)
@@ -354,12 +354,19 @@ const SignalDetails = () => {
                 <div>
                     <span>Feed</span>
                     <select value={selection?.feed} onChange={e => handleFeedChange(e.target.value)}>
-                        <option value='none'>No Feed</option>
-                        <option value='Feed 01'>Video 01</option>
-                        <option value='Feed 02'>Video 02</option>
-                        <option value='Feed 03'>Video 03</option>
-                        <option value='Feed 04'>Video 04</option>
-                        <option value='Feed 05'>Video 05</option>
+                        <option value='static.mp4'>Static</option>
+                        <option value='red 1.mp4'>Red 1</option>
+                        <option value='red 2.mp4'>Red 2</option>
+                        <option value='red 3.mp4'>Red 3</option>
+                        <option value='red 4.mp4'>Red 4</option>
+                        <option value='red 5.mp4'>Red 5</option>
+                        <option value='red 6.mp4'>Red 6</option>
+                        <option value='red 7.mp4'>Red 7</option>
+                        <option value='red 8.mp4'>Red 8</option>
+                        <option value='red 9.mp4'>Red 9</option>
+                        <option value='blue 1.mp4'>Blue 1</option>
+                        <option value='blue 2.mp4'>Blue 2</option>
+                        <option value='testVid.mp4'>Test 1</option>
                     </select>
                     <span>dB</span>
                 </div>

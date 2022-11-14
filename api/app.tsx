@@ -4,7 +4,8 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
     cors: { 
-        origin: 'https://bjhufstetler.github.io'
+        //origin: 'https://bjhufstetler.github.io'
+        origin: 'http://localhost:3000'
     }
 });
 
@@ -28,6 +29,7 @@ io.on('connection', (socket) => {
 
     socket.on('PATCH', (table, update) => {
         if(table == 'equipment') {
+            console.log(update)
             const id = update.id;
             delete update.id;
             const room = `${update.server}_${update.team}`;
@@ -42,11 +44,12 @@ io.on('connection', (socket) => {
                         .then(data => socket.to(room).emit('equipment_patch', data))
                 });
         } else if(table == 'satEnv') {
-            const id = update.id;
+            const conn = update.conn;
             delete update.id;
             const room = update.server;
+            console.log(update)
             knex('satenv')
-                .where('id', id)
+                .where('conn', conn)
                 .update(update)
                 .then(res => {
                     knex('satenv')
@@ -55,7 +58,7 @@ io.on('connection', (socket) => {
                         .then(data => socket.to(room).emit('satEnv_patch', data))
                 });
         };
-    }); 
+    });
 
     socket.on('POST', (table, update) => {
         if(table == 'equipment') {

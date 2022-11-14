@@ -87,9 +87,10 @@ const Transmitter = () => {
                 sat: tmpAntenna.sat,
                 feed: tx.feed,
                 stage: "ULRF",
-                lb: tmpAntenna?.power == 0 ? false : true,
+                lb: tmpAntenna?.power === 0 ? false : true,
                 active: tmpAntenna.active
             }
+            console.log(tmpSignal)
             socket.emit('PATCH', 'satEnv', tmpSignal)
         }
     }
@@ -109,7 +110,7 @@ const Transmitter = () => {
             sat: tmpAntenna.sat,
             feed: tx.feed,
             stage: "ULRF",
-            lb: tmpAntenna?.power == 0 ? false : true,
+            lb: tmpAntenna?.power === 0 ? false : true,
             active: tmpAntenna?.active
         }
         if(tx.active) {

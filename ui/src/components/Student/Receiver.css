@@ -1,0 +1,22 @@
+.rxModemOutputs {
+    border: 1px solid black;
+    padding: 20px;
+    margin: 5px;
+    width: 230px;
+    display: grid;
+    grid-template-columns: 90px 95px 25px;
+    align-items: center;
+}
+
+
+.rxBody {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.rxVideo {
+    border: 1px solid black;
+    padding: 20px;
+    margin: 5px;
+}
+

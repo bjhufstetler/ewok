@@ -15,12 +15,13 @@ const Satellites = () => {
             {team: "All", x: 5000, y: -100, sat: 'ArCOM'}];
         
         if ( tmpSatEnv.length > 0 ) {
-            tmpSatEnv.sort((a, b) => a.cf - b.cf).filter(x => x.team == 'Instructor' || x.active || x.power).map(signal => {
+            tmpSatEnv.sort((a, b) => a.cf - b.cf).filter(x => x.team === 'Instructor' || x.active ).map(signal => {
                 const power = signal.power * (1 + (1 / (10 * signal.mod)) + ( 1 / (10 * signal.fec))) - 2;
-                const uc = signal.team == 'Instructor' ? satellites.filter(x => x.sat == signal.sat)[0]?.uc : satellites.filter(x => x.band == signal.band)[0]?.uc;
+                const uc = signal.team === 'Instructor' ? satellites.filter(x => x.sat === signal.sat)[0]?.uc : satellites.filter(x => x.band === signal.band)[0]?.uc;
                 const bw = signal.dr * (1 + 1/signal.fec) / ( signal.mod * 2 );
                 tmpSignals.push({team: signal.team, x: signal.cf + uc - bw, y: power, sat: signal.sat});
                 tmpSignals.push({team: signal.team, x: signal.cf + uc + bw, y: -100, sat: signal.sat});
+                return(null);
             });
         };
 

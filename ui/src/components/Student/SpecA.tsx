@@ -1,34 +1,31 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useEwokContext, useEquipmentContext, useSatEnvContext } from "../../context/EwokContext";
 import { useEffect, useState } from 'react';
+import Plot from 'react-plotly.js';
 import './StudentPage.css';
 import './SpecA.css';
-import Plot from 'react-plotly.js';
 
 const SpecA = ({ unit_name } : { unit_name: string}) => {
 
-    // Import [ewok] for server/team information
     const { ewok, socket, satellites } = useEwokContext();
-    // Import [equipment] for SpecA settings
     const { equipment } = useEquipmentContext();
-    // Import [satenv] for signal information 
     const { satEnv } = useSatEnvContext();
 
     const [markerX, setMarkerX] = useState<number>(500);
 
     // Update the plot at a regular interval (0.1 second)
+    const refreshRate = 10 // hz
     const [plotTimer, setPlotTimer] = useState<boolean>(false);
     useEffect(() => {
         setTimeout(() => {
             setPlotTimer(!plotTimer);
-        }, 100);
+        }, 1000 / refreshRate);
     }, [plotTimer]);
 
     // Hold settings in state noting that only one piece of equipment is being used
-    const tmpSettings = [...equipment]?.filter((x: any) => {
-        x.unit_type == 'SpecA' &&
-        x.unit_name == unit_name
-    })[0];
+    const tmpSettings = [...equipment]?.filter(x => 
+        x.unit_type === 'SpecA' &&
+        x.unit_name === unit_name
+    )[0];
 
     const [ settings, setSettings ] = useState(tmpSettings);
     const [ specA, setSpecA ] = useState(tmpSettings);
@@ -36,14 +33,13 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     // Update settings whenever equipment or ewok changes
     useEffect(() => {
         const tmpSettings = [...equipment]?.filter(x => 
-            x.unit_type == "SpecA" && 
-            x.unit_name == unit_name
+            x.unit_type === "SpecA" && 
+            x.unit_name === unit_name
             )[0];
         
         setSettings(tmpSettings)
         setSpecA(tmpSettings);
-    }, [ewok, equipment]);
-
+    }, [ewok, equipment, unit_name]);
 
     const handleChangeCF = (e: any) => {
         let tmpValue = settings.cf;
@@ -163,17 +159,16 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         const plotYLimit : Array<number> = Array(1000).fill(-60);
         let plotY : Array<number> = y;
         let tmpMaxY : Array<number> = maxY;
-        //let plotEnv = [...satEnv?.filter(x => x.team == ewok.team)];
-        const antenna = equipment?.filter(x => x.unit_type == 'Antenna')[0];
+        const antenna = equipment?.filter(x => x.unit_type === 'Antenna')[0];
         let plotEnv: any = null;
         // Uplink IF
-        if ( unit_name == '1') {
-            plotEnv = [...satEnv?.filter(x => x.team == ewok.team)];
+        if ( unit_name === '1') {
+            plotEnv = [...satEnv?.filter(x => x.team === ewok.team)];
 
         // Uplink RF
-        } else if ( unit_name == '2') {
-            plotEnv = [...satEnv?.filter(x => x.team == ewok.team).map(x => {
-                const uc = satellites?.filter(satellite => satellite?.band == x?.band)[0]?.uc;
+        } else if ( unit_name === '2') {
+            plotEnv = [...satEnv?.filter(x => x.team === ewok.team).map(x => {
+                const uc = satellites?.filter(satellite => satellite?.band === x?.band)[0]?.uc;
                 return(
                     {
                         ...x,
@@ -184,12 +179,12 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
             })]
 
         // Downlink IF
-        } else if( unit_name == '3') {
-            plotEnv = [...satEnv?.filter(x => x.team != ewok.team || x.lb || x.active).map(x => {
-                const uc = satellites?.filter(satellite => satellite.band == x.band)[0]?.uc; // Upconvert from signal
-                const dc = satellites?.filter(satellite => satellite.band == antenna?.unit_name)[0]?.dc; // Downconvert from antenna
-                const ttf = x.team == ewok?.team && antenna?.power ? antenna?.cf : satellites?.filter(satellite => satellite.sat == x.sat)[0]?.ttf; // TTF from satellite
-                const fspl = satellites?.filter(satellite => satellite.band == antenna?.unit_name)[0]?.fspl; // FSPL from satellite
+        } else if( unit_name === '3') {
+            plotEnv = [...satEnv?.filter(x => (x.team === ewok.team && x.lb) || x.active).map(x => {
+                const uc = satellites?.filter(satellite => satellite.band === x.band)[0]?.uc; // Upconvert from signal
+                const dc = satellites?.filter(satellite => satellite.band === antenna?.unit_name)[0]?.dc; // Downconvert from antenna
+                const ttf = x.team === ewok?.team && antenna?.power ? antenna?.cf : satellites?.filter(satellite => satellite.sat === x.sat)[0]?.ttf; // TTF from satellite
+                const fspl = satellites?.filter(satellite => satellite.band === antenna?.unit_name)[0]?.fspl; // FSPL from satellite
                 return(
                     {...x,
                     cf: x.cf + uc + ttf + dc,
@@ -198,11 +193,11 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
             })]
 
         // Downlink RF
-        } else if( unit_name == '4') {
-            plotEnv = [...satEnv?.filter(x => x.team != ewok.team || x.lb || x.active).map(x => { //plotEnv = [...satEnv?.filter(signal => signal.active || signal.lb).map(x => {
-                const uc = satellites?.filter(satellite => satellite.band == x.band)[0]?.uc; // Upconvert from signal
-                const ttf =  x.team == ewok?.team && antenna?.power ? antenna?.cf : satellites?.filter(satellite => satellite.sat == x.sat)[0]?.ttf; // TTF from satellite
-                const fspl = satellites?.filter(satellite => satellite.band == antenna?.unit_name)[0]?.fspl; // FSPL from satellite
+        } else if( unit_name === '4') {
+            plotEnv = [...satEnv?.filter(x => (x.team === ewok.team && x.lb) || x.active).map(x => { //plotEnv = [...satEnv?.filter(signal => signal.active || signal.lb).map(x => {
+                const uc = satellites?.filter(satellite => satellite.band === x.band)[0]?.uc; // Upconvert from signal
+                const ttf =  x.team === ewok?.team && antenna?.power ? antenna?.cf : satellites?.filter(satellite => satellite.sat === x.sat)[0]?.ttf; // TTF from satellite
+                const fspl = satellites?.filter(satellite => satellite.band === antenna?.unit_name)[0]?.fspl; // FSPL from satellite
                 return(
                     {...x,
                     cf: x.cf + ttf + uc,
@@ -212,16 +207,17 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         };
 
         plotX.map((x, xid) => {
-            let signalPower = plotEnv.filter((env: any) => 
-                env.sat == antenna?.sat &&
+            let signalPower = plotEnv.filter((env: any) => (
+                env.sat === antenna?.sat &&
                 env.cf - env.dr * (1 + 1/(env.fec)) / ( env.mod * 2 ) <= x &&
-                env.cf + env.dr * (1 + 1/(env.fec)) / ( env.mod * 2 ) >= x).map((signal: any) => signal.power * (1 + (1 / (20 * signal.mod)) + ( 1 / (20 * signal.fec)) ))
+                env.cf + env.dr * (1 + 1/(env.fec)) / ( env.mod * 2 ) >= x)).map((signal: any) => signal.power * (1 + (1 / (20 * signal.mod)) + ( 1 / (20 * signal.fec))))
             signalPower.push(-100)
             let tmpY = Math.max(...signalPower);
             const variability = y[xid] > -100 ? .3 : .5
             tmpY = tmpY - .9 * (tmpY - y[xid]) - Math.abs(variability * randn_bm()) + .2;
             plotY[xid] = tmpY;
             tmpMaxY[xid] = Math.max(tmpY, tmpMaxY[xid]);
+            return(null);
         })
         const plotData = [
             {
@@ -244,7 +240,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                 hoverinfo: "none",
             }
         ];
-        if( unit_name == '1' ) {
+        if( unit_name === '1' ) {
             plotData.push(
                 {
                     x: plotX,
@@ -259,7 +255,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         */
         return(
             <>
-                <div>Spectrum Analyzer {unit_name}: {Number(unit_name) < 3 ? 'Uplink ' : 'Downlink '}{Number(unit_name) % 2 == 0 ? 'RF' : 'IF'}</div>
+                <div>Spectrum Analyzer {unit_name}: {Number(unit_name) < 3 ? 'Uplink ' : 'Downlink '}{Number(unit_name) % 2 === 0 ? 'RF' : 'IF'}</div>
                 <div className='specAPlot'>
                     <Plot
                         data = {plotData}
@@ -356,18 +352,3 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
 };
 
 export default SpecA;
-
-interface equipment {
-    id: number,
-    conn: string,
-    server: string,
-    team: string,
-    unit_type: string,
-    unit_name: string,
-    cf: number,
-    bw: number,
-    power: number,
-    sat: string,
-    feed: string,
-    active: boolean
-};
