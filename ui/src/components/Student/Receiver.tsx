@@ -7,14 +7,17 @@ const Receiver = () => {
     const { socket } = useEwokContext();
     const { equipment } = useEquipmentContext();
     const { satEnv } = useSatEnvContext();
+    const tmpRx = equipment?.filter(x => x.unit_type === 'RX')[0];
+    const [rx, setRx] = useState(tmpRx)
+    const [settings, setSettings] = useState(tmpRx);
 
     useEffect(() => {
         let tmpFeed = 'static.mp4';
         satEnv?.filter(x => x.team === 'Instructor').forEach(signal => {
             if( 
-                Math.abs(signal.cf - settings?.cf) < .5 && 
-                signal.fec === settings?.fec && 
-                signal.mod === settings?.mod) {
+                Math.abs(signal.cf - rx?.cf) < .5 && 
+                signal.fec === rx?.fec && 
+                signal.mod === rx?.mod) {
                     tmpFeed = signal.feed;
                     satEnv?.filter(x => x.team !== 'Instructor').forEach(x => {
                         if(
@@ -30,10 +33,11 @@ const Receiver = () => {
             };    
         });
         setVidFeed(tmpFeed)
+        const tmpRx = equipment?.filter(x => x.unit_type === 'RX')[0];
+        setRx(tmpRx);
+        setSettings(tmpRx);
     }, [satEnv, equipment])
 
-    const rx = equipment.filter(x => x.unit_type === 'RX')[0];
-    const [ settings, setSettings ] = useState(rx);
     const [ vidFeed, setVidFeed ] = useState<string>('static.mp4')
     const handleChangeCF = (e: any) => {
         const tmpEquipment = {

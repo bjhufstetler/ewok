@@ -1,0 +1,22 @@
+[
+{"id":81,"conn":"ck9xa0Mi","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 1","unit_name":"VSAT 0","cf":1200,"dr":30,"bw":1,"mod":2,"fec":1,"power":-65,"sat":"ASH","feed":"static","active":false},
+{"id":82,"conn":"lHSI6poW","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 1","unit_name":"VSAT 1","cf":1220,"dr":1,"bw":1,"mod":2,"fec":1,"power":-67,"sat":"ASH","feed":"red 1","active":false},
+{"id":83,"conn":"nWAQtvLf","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 1","unit_name":"VSAT 2","cf":1222,"dr":1,"bw":1,"mod":2,"fec":1,"power":-67,"sat":"ASH","feed":"red 1","active":false},
+{"id":84,"conn":"sFW5w7RT","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 1","unit_name":"VSAT 3","cf":1224,"dr":1,"bw":1,"mod":2,"fec":1,"power":-67,"sat":"ASH","feed":"red 1","active":false},
+{"id":85,"conn":"c2BcOjsz","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 1","unit_name":"VSAT 4","cf":1226,"dr":1,"bw":1,"mod":2,"fec":1,"power":-67,"sat":"ASH","feed":"red 1","active":false},
+{"id":81,"conn":"ckaxa0Mi","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 2","unit_name":"VSAT 0","cf":1400,"dr":50,"bw":1,"mod":2,"fec":1,"power":-62,"sat":"ASH","feed":"red 1","active":false},
+{"id":82,"conn":"lHaI6poW","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 2","unit_name":"VSAT 1","cf":1427,"dr":1,"bw":1,"mod":2,"fec":1,"power":-64,"sat":"ASH","feed":"red 1","active":false},
+{"id":83,"conn":"nWaQtvLf","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 2","unit_name":"VSAT 2","cf":1429,"dr":1,"bw":1,"mod":2,"fec":1,"power":-64,"sat":"ASH","feed":"red 1","active":false},
+{"id":84,"conn":"sFa5w7RT","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 2","unit_name":"VSAT 3","cf":1431,"dr":1,"bw":1,"mod":2,"fec":1,"power":-64,"sat":"ASH","feed":"red 1","active":false},
+{"id":85,"conn":"c2acOjsz","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 2","unit_name":"VSAT 4","cf":1433,"dr":1,"bw":1,"mod":2,"fec":1,"power":-64,"sat":"ASH","feed":"red 1","active":false},
+{"id":81,"conn":"cksxa0Mi","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 3","unit_name":"VSAT 0","cf":1600,"dr":40,"bw":1,"mod":2,"fec":1,"power":-64,"sat":"ASH","feed":"red 1","active":false},
+{"id":82,"conn":"lHsI6poW","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 3","unit_name":"VSAT 1","cf":1621,"dr":1,"bw":1,"mod":2,"fec":1,"power":-66,"sat":"ASH","feed":"red 1","active":false},
+{"id":83,"conn":"nWsQtvLf","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 3","unit_name":"VSAT 2","cf":1623,"dr":1,"bw":1,"mod":2,"fec":1,"power":-66,"sat":"ASH","feed":"red 1","active":false},
+{"id":84,"conn":"ss5w7RtT","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 3","unit_name":"VSAT 3","cf":1625,"dr":1,"bw":1,"mod":2,"fec":1,"power":-66,"sat":"ASH","feed":"red 1","active":false},
+{"id":85,"conn":"csBcOjsz","server":"PaWy","team":"Instructor","unit_type":"ASH VSAT 3","unit_name":"VSAT 4","cf":1627,"dr":1,"bw":1,"mod":2,"fec":1,"power":-66,"sat":"ASH","feed":"red 1","active":false},
+{"id":81,"conn":"d9xao0Mi","server":"PaWy","team":"Instructor","unit_type":"ASH COMM 1","unit_name":"COMM 0","cf":1140,"dr":20,"bw":1,"mod":2,"fec":1,"power":-70,"sat":"ASH","feed":"red 1","active":false},
+{"id":82,"conn":"dHSI6poW","server":"PaWy","team":"Instructor","unit_type":"ASH COMM 1","unit_name":"COMM 1","cf":1700,"dr":1,"bw":1,"mod":2,"fec":1,"power":-65,"sat":"ASH","feed":"red 1","active":false},
+{"id":83,"conn":"ndAQtvLf","server":"PaWy","team":"Instructor","unit_type":"ASH COMM 1","unit_name":"COMM 2","cf":1320,"dr":3,"bw":1,"mod":2,"fec":1,"power":-60,"sat":"ASH","feed":"red 1","active":false},
+{"id":84,"conn":"sdW5w7RT","server":"PaWy","team":"Instructor","unit_type":"ASH COMM 1","unit_name":"COMM 3","cf":1340,"dr":5,"bw":1,"mod":2,"fec":1,"power":-69,"sat":"ASH","feed":"red 1","active":false},
+{"id":85,"conn":"cdBcOjsz","server":"PaWy","team":"Instructor","unit_type":"ASH COMM 1","unit_name":"COMM 4","cf":1710,"dr":7,"bw":1,"mod":2,"fec":1,"power":-68,"sat":"ASH","feed":"red 1","active":false}
+]
