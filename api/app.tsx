@@ -1,3 +1,11 @@
+/*
+   USER INPUT REQUIRED!
+   TYPE YOUR NETWORK IP
+   ADDRESS ON LINE 7
+*/
+
+const ipAddress = '10.11.112.140';
+
 var express = require("express");
 const app = express();
 
@@ -5,7 +13,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
     cors: { 
         //origin: 'https://bjhufstetler.github.io'
-        origin: 'http://localhost:3000'
+        origin: ['http://localhost:3000', `http://${ipAddress}:3000`]
     }
 });
 
@@ -17,7 +25,7 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json())
 
-http.listen(port, () => console.log(`API listening on port ${port}`));
+http.listen(port, () => console.log(`API listening on port ${port}.`));
 
 io.on('connection', (socket) => {
     console.log(socket.id)

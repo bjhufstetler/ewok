@@ -2,7 +2,7 @@ interface IEwokContext {
     ewok: {    
         team: string,
         server: string,
-        baseURL: string,
+        baseURL: string
     },
     setEwok: any,
     socket: any,

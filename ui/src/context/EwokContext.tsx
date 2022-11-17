@@ -1,16 +1,18 @@
 import PropTypes from "prop-types";
-import { FunctionComponent, useContext, useState, useMemo, createContext } from "react";
+import { FunctionComponent, useContext, useState, useMemo, createContext, useEffect } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { io } from 'socket.io-client';
-import config from '../config';
+//import config from '../config';
 //const configIndex = process.env.REACT_APP_NODE_ENV ? 1 : 0;
-const configIndex = 0;
-const socketUrl: string = config[configIndex].socketUrl;
+//const configIndex = 0;
+//const socketUrl: string = config[configIndex].socketUrl;
+
+const tmpIp = window.location.href.split(':3000', 1)[0];
 
 const defaultEwokContext = {
     team: "",
     server: "",
-    baseURL: 'apiUrl'
+    baseURL: `${tmpIp}:8080`
 };
 
 const EwokContext = createContext({} as IEwokContext);
@@ -24,10 +26,14 @@ const EwokProvider: FunctionComponent<EwokProviderProps> = ({ children }) => {
     const satellites = [
         {sat: 'ASH', band: 'C', uc: 5100, dc: -5100, ttf: 20, fspl: 15},
         {sat: 'DRSC', band: 'Ku', uc: 11050, dc: -11050, ttf: 15.25, fspl: 9},
-        {sat: 'ArCOM', band: 'Ka', uc: 30025, dc: -30025, ttf: 7.5, fspl: 6}
+        {sat: 'ArCOM', band: 'Ka', uc: 29025, dc: -29025, ttf: 7.5, fspl: 6}
     ];
     
-    const socket = io(socketUrl);
+    //const socket = io(socketUrl);
+    let socket = io(ewok.baseURL);
+    useEffect(() => {
+        socket = io(ewok.baseURL);
+    }, [ewok])
 
     const value: any = useMemo(() => ({
         ewok, setEwok, socket, satellites

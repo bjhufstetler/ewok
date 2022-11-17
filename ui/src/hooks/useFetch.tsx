@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
-import config from '../config';
+import { useEwokContext } from '../context/EwokContext';
+//import config from '../config';
 //const configIndex = process.env.REACT_APP_NODE_ENV ? 1 : 0;
-const configIndex = 0;
-const apiUrl: string = config[configIndex].apiUrl;
+//const configIndex = 0;
+//const apiUrl: string = config[configIndex].apiUrl;
 
 export const useFetch = (urlRoute: string) => {
+  
+  const { ewok } = useEwokContext();
+  const apiUrl: string = ewok.baseURL;
+  
   const [data, setData] = useState<any>([]);
   const [err, setErr] = useState(null);
   const [load, setLoad] = useState(true);
-
+  
   useEffect(() => {
       fetch(apiUrl + urlRoute)
       .then(response => {

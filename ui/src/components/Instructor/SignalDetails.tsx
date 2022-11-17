@@ -23,7 +23,7 @@ const SignalDetails = () => {
     const [groups, setGroups] = useState<any>()
     // Handle updates to equipment and satEnv
     useEffect(() => {
-        const tmpGroups = new Set(equipment.map( (signal : any) => signal.unit_type ));
+        const tmpGroups = new Set(equipment.map( (signal : any) => signal.unit_type ).sort((a: any,b: any) => (a > b) ? 1 : ((b > a) ? -1 : 0)));
         setGroups([...tmpGroups]);
     }, [equipment])
 
@@ -295,7 +295,7 @@ const SignalDetails = () => {
                     <TbPlus onClick={() => handleClickPlus()}/>
                 </div>
                 <hr></hr>
-                {groups?.sort((a: any,b: any) => (a.unit_type > b.unit_type) ? 1 : ((b.unit_type > a.unit_type) ? -1 : 0)).map((group: string, groupID: number) => {
+                {groups?.map((group: string, groupID: number) => {
                     return(<GroupComponent key={groupID} group={ group } />)
                 })}
                 <button onClick={() => handleClickSaveScenario()}>Save Scenario</button>

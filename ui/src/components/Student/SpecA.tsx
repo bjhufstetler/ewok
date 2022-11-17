@@ -6,11 +6,9 @@ import './SpecA.css';
 
 const SpecA = ({ unit_name } : { unit_name: string}) => {
 
-    const { ewok, socket, satellites } = useEwokContext();
+    const { ewok, satellites } = useEwokContext();
     const { equipment } = useEquipmentContext();
     const { satEnv } = useSatEnvContext();
-
-    const [markerX, setMarkerX] = useState<number>(500);
 
     // Update the plot at a regular interval (0.1 second)
     const refreshRate = 10 // hz
@@ -20,59 +18,81 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
             setPlotTimer(!plotTimer);
         }, 1000 / refreshRate);
     }, [plotTimer]);
-
+    
     // Hold settings in state noting that only one piece of equipment is being used
-    const tmpSettings = [...equipment]?.filter(x => 
-        x.unit_type === 'SpecA' &&
-        x.unit_name === unit_name
-    )[0];
-
+    const tmpSettings = {cf: 1500, bw: 1000, lb: -101, ub: -70, ll: -101, ul: -70};
+    
     const [ settings, setSettings ] = useState(tmpSettings);
     const [ specA, setSpecA ] = useState(tmpSettings);
-
-    // Update settings whenever equipment or ewok changes
-    useEffect(() => {
-        const tmpSettings = [...equipment]?.filter(x => 
-            x.unit_type === "SpecA" && 
-            x.unit_name === unit_name
-            )[0];
-        
-        setSettings(tmpSettings)
-        setSpecA(tmpSettings);
-    }, [ewok, equipment, unit_name]);
-
+    
     const handleChangeCF = (e: any) => {
-        let tmpValue = settings.cf;
-        if(!isNaN(Number(e.target.value)) && Number(e.target.value) > 0) tmpValue = e.target.value;
-        if(e.target.value > 0) tmpValue = e.target.value;
         let tmpSettings = {
             ...settings,
-            cf: tmpValue
+            cf: e.target.value
+        };
+        setSettings(tmpSettings);
+    };
+    
+    const handleChangeBW = (e: any) => {
+        let tmpSettings = {
+            ...settings,
+            bw: e.target.value
         };
         setSettings(tmpSettings);
     };
 
-    const handleChangeBW = (e: any) => {
-        let tmpValue = settings.bw;
-        if(!isNaN(Number(e.target.value)) && Number(e.target.value) > 0) tmpValue = e.target.value;
+    const handleChangeUB = (e: any) => {
         let tmpSettings = {
             ...settings,
-            bw: tmpValue
+            ub: e.target.value
         };
         setSettings(tmpSettings);
     };
+
+    const handleChangeLB = (e: any) => {
+        let tmpSettings = {
+            ...settings,
+            lb: e.target.value
+        };
+        setSettings(tmpSettings);
+    };
+    
+    const handleClickScale = () => {
+        // Get extents for auto scale      
+        const lb = Math.min.apply(Math, y) - 1;
+        const ub = Math.max.apply(Math, y) + 1;
+        const tmpEquipment = {
+            ...specA,
+            lb: lb,
+            ub: ub
+        };
+        setSpecA(tmpEquipment);
+    }; 
 
     const handleClickSet = () => {
-        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
-        const tmpBw = settings.cf - settings.bw/2 <= 0 ? settings.cf * 2 : settings.bw;
-        const tmpEquipment = {
-            ...equipment[equipmentIndex],
-            cf: settings.cf,
-            bw: tmpBw
+        if(!isNaN(settings.cf) 
+        && !isNaN(settings.bw) 
+        && !isNaN(settings.ub) 
+        && !isNaN(settings.lb)
+        && Number(settings.lb) < Number(settings.ub)) {
+            const cf = Number(settings.cf);
+            const bw = Number(settings.bw);
+            if (cf != specA.cf || bw != specA.bw ) setY(initY);
+            const ub = Number(settings.ub);
+            const lb = Number(settings.lb);
+            const tmpBw = cf - bw/2 <= 0 ? cf * 2 : bw;
+            const tmpEquipment = {
+                ...specA,
+                cf: cf,
+                bw: tmpBw,
+                ub: ub,
+                lb: lb
+            }
+            setSpecA(tmpEquipment);
         }
-        socket.emit('PATCH', 'equipment', tmpEquipment)
-        setY(initY)
     };
+    
+    const [markerX, setMarkerX] = useState<number>(500);
     const initY = Array(1000).fill(-103);
     const initYMax = Array(1000).fill(-110);
     const [y, setY] = useState<any>(initY)
@@ -82,10 +102,6 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         setMaxY(initYMax);
         setMax(!max);
     };
-    const handleClickResetMax = () => {
-        setMaxY(initYMax);
-        setMax(true);
-    };
 
     const [lockY, setLockY] = useState<any>(initYMax);
     const [lock, setLock] = useState<boolean>(false);
@@ -93,62 +109,54 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         setLockY([...y]);
         setLock(!lock);
     };
-    const handleClickResetLock = () => {
-        setLockY([...y]);
-        setLock(true);
-    }
     useEffect(() => {
         setLock(false);
         setMaxY([...y]);
     }, [y])
         
     const handleClickLeft = () => {
-        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
-        const tmpCf = Math.round(1000 * (settings.cf - settings.bw / 10)) / 1000;
-        const tmpBw = tmpCf - settings.bw/2 < 0 ? tmpCf * 2 : settings.bw;
+        const tmpCf = Math.round(1000 * (specA.cf - specA.bw / 10)) / 1000;
+        const tmpBw = tmpCf - specA.bw/2 < 0 ? tmpCf * 2 : specA.bw;
         const tmpEquipment = {
-            ...equipment[equipmentIndex],
+            ...specA,
             cf: tmpCf,
             bw: tmpBw
         }
-        socket.emit('PATCH', 'equipment', tmpEquipment)
+        setSpecA(tmpEquipment);
         setY(initY);
     };
     const handleClickRight = () => {
-        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
         const tmpEquipment = {
-            ...equipment[equipmentIndex],
-            cf: Math.round(1000 * (settings.cf + settings.bw / 10)) / 1000
+            ...specA,
+            cf: Math.round(1000 * (specA.cf + specA.bw / 10)) / 1000
         }
-        socket.emit('PATCH', 'equipment', tmpEquipment);
+        setSpecA(tmpEquipment);
         setY(initY);
     };
 
     const handleClickZoomIn = () => {
-        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
         const tmpEquipment = {
-            ...equipment[equipmentIndex],
-            bw: Math.round(settings.bw * .5 * 1000) / 1000
+            ...specA,
+            bw: Math.round(specA.bw * .5 * 1000) / 1000
         }
-        socket.emit('PATCH', 'equipment', tmpEquipment);
+        setSpecA(tmpEquipment);
         setY(initY);
     };
     const handleClickZoomOut = () => {
-        const equipmentIndex = equipment.map(x => x.id).indexOf(settings.id);
-        const tmpBw = Math.round(settings.bw * 1.5 * 1000) / 1000
-        const tmpCf = settings.cf - tmpBw/2 < 0 ? tmpBw / 2 : settings.cf;
+        const tmpBw = Math.round(specA.bw * 1.5 * 1000) / 1000
+        const tmpCf = specA.cf - tmpBw/2 < 0 ? tmpBw / 2 : specA.cf;
         const tmpEquipment = {
-            ...equipment[equipmentIndex],
+            ...specA,
             cf: tmpCf,
             bw: tmpBw
         }
-        socket.emit('PATCH', 'equipment', tmpEquipment);
+        setSpecA(tmpEquipment);
         setY(initY);
     };
 
     const randn_bm = () => {
-        let u = 1 - Math.random(); //Converting [0,1) to (0,1)
-        let v = Math.random();
+        let u = 1 - Math.random(); // [-1, 0]
+        let v = Math.random(); // [0, 1]
         return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
     }
 
@@ -213,12 +221,14 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                 env.cf + env.dr * (1 + 1/(env.fec)) / ( env.mod * 2 ) >= x)).map((signal: any) => signal.power * (1 + (1 / (20 * signal.mod)) + ( 1 / (20 * signal.fec))))
             signalPower.push(-100)
             let tmpY = Math.max(...signalPower);
-            const variability = y[xid] > -100 ? .3 : .5
-            tmpY = tmpY - .9 * (tmpY - y[xid]) - Math.abs(variability * randn_bm()) + .2;
+            const variability = y[xid] > -100 ? .3 : .6
+            //tmpY = tmpY - .9 * (tmpY - y[xid]) - Math.abs(variability * randn_bm()) + .2;
+            tmpY = tmpY + variability * ( randn_bm() - .5);//Math.abs(variability * randn_bm()) + .2;
             plotY[xid] = tmpY;
-            tmpMaxY[xid] = Math.max(tmpY, tmpMaxY[xid]);
+            tmpMaxY[xid] = Math.max(tmpY, tmpMaxY[xid]);  
             return(null);
         })
+
         const plotData = [
             {
                 x: plotX,
@@ -250,9 +260,6 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                 }
             )
         }
-        /*
-            TODO: saved states
-        */
         return(
             <>
                 <div>Spectrum Analyzer {unit_name}: {Number(unit_name) < 3 ? 'Uplink ' : 'Downlink '}{Number(unit_name) % 2 === 0 ? 'RF' : 'IF'}</div>
@@ -270,7 +277,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                                     fixedrange: true
                                     
                                 },
-                                yaxis: { title: 'dB', color: 'white'},// fixedrange : true, range: [-103, -83]},
+                                yaxis: { title: 'dB', color: 'white', fixedrange : true, range: [specA?.lb, specA?.ub]},
                                 font: { color: 'white'}, legend: { y: 0 },
                                 modebar: {remove: ["autoScale2d", 'zoom2d', 'zoomIn2d', 'zoomOut2d', 'pan2d', 'resetScale2d', 'toImage']},
                                 dragmode: 'select',
@@ -315,35 +322,52 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
             <div className='SpecAControls'>
                 <div className='freqValues'>
                     <span>{Math.round(1000 * (specA?.cf - specA?.bw / 2)) / 1000} MHz</span>
+                    <span className='cf'>{Math.round(1000 * specA?.cf) / 1000} MHz</span>
+                    <span>{Math.round(1000 * (specA?.cf + specA?.bw / 2)) / 1000} MHz</span>
+                </div>
+                <div className='inputControl'>
+                    <span className='label'>CF (MHz)</span>
+                    {isNaN(settings.cf) ?
+                        <input className="invalid" type='text' name='cf' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
+                        : <input type='text' name='cf' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
+                    }
+                    {isNaN(settings.ub) || Number(settings.lb) > Number(settings.ub) ?
+                        <input className='invalid' type='text' value={settings?.ub} onChange={e => handleChangeUB(e)}></input>
+                        : <input type='text' value={settings?.ub} onChange={e => handleChangeUB(e)}></input>
+                    }
+                    <span className='unit'>Max dB</span>
+                    <span className='label'>Span (MHz)</span>
+                    {isNaN(settings.bw) ?
+                        <input className="invalid" type='text' name='cf' value={settings?.bw} onChange={e => handleChangeBW(e)}></input>
+                        : <input type='text' name='cf' value={settings?.bw} onChange={e => handleChangeBW(e)}></input>
+                    }
+                    {isNaN(settings.lb) || Number(settings.lb) > Number(settings.ub) ?
+                        <input className='invalid' type='text' value={settings?.lb} onChange={e => handleChangeLB(e)}></input>
+                        : <input type='text' value={settings?.lb} onChange={e => handleChangeLB(e)}></input>
+                    }
+                    <span className='unit'>Min dB</span>
+                    <span></span>
+                    <button onClick={() => handleClickSet()}>Set</button>
+                    <button onClick={() => handleClickScale()}>Auto</button>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div className='traceControl'>
+                    <span>X Axis</span>
                     <button onClick={() => handleClickLeft()}>L</button>
                     <button onClick={() => handleClickRight()}>R</button>
                     <button onClick={() => handleClickZoomOut()}>-</button>
                     <button onClick={() => handleClickZoomIn()}>+</button>
-                    <span>{Math.round(1000 * specA?.cf) / 1000} MHz</span>
-                    <span></span>
+                </div>
+                <div className='traceControl'>
+                    <span>Marker</span>
                     <button onClick={() => setMarkerX(markerX - 10)}>L</button>
                     <button onClick={() => setMarkerX(markerX + 10)}>R</button>
-                    <span></span>
-                    <span>{Math.round(1000 * (specA?.cf + specA?.bw / 2)) / 1000} MHz</span>
-                </div>
-                <div className='inputControl'>
-                    <span className='label'>Center Frequency</span>
-                    <input type='text' name='cf' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
-                    <span className='unit'>MHz</span>
-                    <span className='label'>Span</span>
-                    <input type='text' value={settings?.bw} onChange={e => handleChangeBW(e)}></input>
-                    <span className='unit'>MHz</span>
-                    <span></span>
-                    <button onClick={() => handleClickSet()}>SET</button>
-                    <span></span>
                 </div>
                 <div className='traceControl'>
-                    <button onClick={() => handleClickMax()}>Max Hold</button>
-                    <button onClick={() => handleClickResetMax()}>Reset</button>
-                </div>
-                <div className='traceControl'>
+                    <span>Trace</span>
+                    <button onClick={() => handleClickMax()}>Max</button>
                     <button onClick={() => handleClickLock()}>Lock</button>
-                    <button onClick={() => handleClickResetLock()}>Reset</button>
                 </div>
 
             </div>

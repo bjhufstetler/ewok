@@ -16,11 +16,14 @@ const Satellites = () => {
         
         if ( tmpSatEnv.length > 0 ) {
             tmpSatEnv.sort((a, b) => a.cf - b.cf).filter(x => x.team === 'Instructor' || x.active ).map(signal => {
-                const power = signal.power * (1 + (1 / (10 * signal.mod)) + ( 1 / (10 * signal.fec))) - 2;
-                const uc = signal.team === 'Instructor' ? satellites.filter(x => x.sat === signal.sat)[0]?.uc : satellites.filter(x => x.band === signal.band)[0]?.uc;
+                const satDetails = satellites?.filter(x => x.sat === signal.sat)[0];
+                const ttf = satDetails?.ttf;
+                const fspl = satDetails?.fspl;
+                const power = signal.power * (1 + (1 / (10 * signal.mod)) + ( 1 / (10 * signal.fec))) - 2 - fspl;
+                const uc = signal.team === 'Instructor' ? satDetails?.uc : satDetails?.uc;
                 const bw = signal.dr * (1 + 1/signal.fec) / ( signal.mod * 2 );
-                tmpSignals.push({team: signal.team, x: signal.cf + uc - bw, y: power, sat: signal.sat});
-                tmpSignals.push({team: signal.team, x: signal.cf + uc + bw, y: -100, sat: signal.sat});
+                tmpSignals.push({team: signal.team, x: signal.cf + uc + ttf - bw, y: power, sat: signal.sat});
+                tmpSignals.push({team: signal.team, x: signal.cf + uc + ttf + bw, y: -100, sat: signal.sat});
                 return(null);
             });
         };
@@ -45,7 +48,7 @@ const Satellites = () => {
             {team: "Instructor", color: "white"}]
 
         let plotData : Array<any> = teamData.map( team => {
-            const teamSignals = signals?.filter(signal => (signal.team == team.team || signal.team == "All") && signal.sat == sat);
+            const teamSignals = signals?.filter(signal => (signal.team === team.team || signal.team === "All") && signal.sat === sat);
             return({
                 x: teamSignals.map(signal => signal.x) as Array<number>,
                 y: teamSignals.map(signal => signal.y) as Array<number>,
@@ -124,9 +127,9 @@ const Satellites = () => {
     
     return(
         <>
-            <SatEnvPlot key="A'" sat = {"ASH"} lb = {6000} ub={7000}/>
-            <SatEnvPlot key="B'" sat = {"DRSC"} lb = {12000} ub={13000}/>
-            <SatEnvPlot key="C'" sat = {"ArCOM"} lb = {30000} ub={31000}/>
+            <SatEnvPlot key="A'" sat = {"ASH"} lb = {5900} ub={7100}/>
+            <SatEnvPlot key="B'" sat = {"DRSC"} lb = {11900} ub={13100}/>
+            <SatEnvPlot key="C'" sat = {"ArCOM"} lb = {29900} ub={31100}/>
         </>
     )
 };

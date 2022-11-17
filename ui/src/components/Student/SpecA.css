@@ -5,12 +5,13 @@
 .SpecAControls {
     display: grid;
     width: 800px;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 360px 130px 130px 180px;
 }
+
 .freqValues {
-    grid-column: span 2;
+    grid-column: span 4;
     display: grid;
-    grid-template-columns: 100px 50px 50px 50px 50px 200px 50px 50px 50px 50px 100px;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 .freqValues * {
     margin: 0px 5px 5px 0px;
@@ -28,24 +29,34 @@
     margin-right: 5px;
     padding: 5px;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 100px 80px 80px 100px;
 }
+
 .unit {
     text-align: left;
     margin-left: 10px;
 }
+
 .label {
     text-align: right;
     margin-right: 10px;
 }
 
 .traceControl {
-    margin: 0px 0px 0px 60px;
+    margin: 0px 5px 0px 0px;
     border: 1px solid black;
     display: grid;
     grid-template-columns: 1fr 1fr;
 }
 
+.traceControl :first-child {
+    grid-column: 1/3
+}
+
 .traceControl * {
-    margin: 5px 5px 5px 50px
+    margin: 5px 5px 5px 5px;
+}
+
+.invalid {
+    color: red;
 }

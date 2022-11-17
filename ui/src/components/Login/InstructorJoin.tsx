@@ -7,11 +7,15 @@ const StudentLogin = () => {
     const { ewok, setEwok, socket } = useEwokContext();
     const { setEquipment } = useEquipmentContext();
     const { setSatEnv } = useSatEnvContext();
+    
     const [server, setServer] = useState<string>('');
     const [serverList, setServerList] = useState([]);
     useEffect(() => {
-        fetch('http://localhost:8080/server')
-            .then(res => res.json())
+        fetch(`${ewok.baseURL}/server`)
+            .then(res => {
+                console.log(res);
+                return(res.json());
+            })
             .then(servers => {
                 console.log(servers)
                 setServerList(servers)
@@ -20,6 +24,7 @@ const StudentLogin = () => {
     const handleChangeServer = (e: any) => {
         setServer(e.target.value)
     }
+
     const handleClickJoin = () => {
         const tmpEwok = {...ewok, team: 'Instructor', server: server}
         setEwok(tmpEwok)
@@ -33,13 +38,12 @@ const StudentLogin = () => {
         navigate("/student");
         navigate("/instructor")
     }
+
     return(
         <div className="Card">
             <div>
                 SERVER ID
                 <select onChange={(e) => handleChangeServer(e)} value={server}>
-                    {// TODO: Get server options from db
-                    }
                     <option disabled value=''></option>
                     {serverList.map((servers, id) => (
                         <option key={id} value={servers}>{servers}</option>

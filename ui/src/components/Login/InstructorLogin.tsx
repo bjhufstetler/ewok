@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const InstructorLogin = () => {
-    const code = "a"; // INSTRUCTOR PASSWORD
+    const code = "533"; // INSTRUCTOR PASSWORD
     const navigate = useNavigate();
 
     const [password, setPassword] = useState<string>("");
@@ -12,7 +12,7 @@ const InstructorLogin = () => {
     const handleChangePassword = (e: any) => {
         const tmpPassword = e.target.value
         setPassword(tmpPassword)
-        if (tmpPassword == code) {
+        if (tmpPassword === code) {
             setAuth(true);
         }else{
             setAuth(false);
@@ -21,7 +21,7 @@ const InstructorLogin = () => {
 
     return(
         <div className="Card">
-            <input type="text" placeholder="PASSWORD" value={password} onChange={e => handleChangePassword(e)}></input>
+            <input type="password" placeholder="PASSWORD" value={password} onChange={e => handleChangePassword(e)}></input>
             <button onClick={()=> auth?navigate("/instructorCreate"):{}}>CREATE</button>
             <button onClick={()=> auth?navigate("/instructorJoin"):{}}>JOIN</button>
             <button onClick={() => navigate("/")}>BACK</button>
