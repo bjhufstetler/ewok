@@ -18,15 +18,6 @@ const SignalDetails = () => {
     const { equipment } = useEquipmentContext();
     const { satEnv } = useSatEnvContext();
 
-    // Fetch equipment and satEnv data
-    
-    const [groups, setGroups] = useState<any>()
-    // Handle updates to equipment and satEnv
-    useEffect(() => {
-        const tmpGroups = new Set(equipment.map( (signal : any) => signal.unit_type ).sort((a: any,b: any) => (a > b) ? 1 : ((b > a) ? -1 : 0)));
-        setGroups([...tmpGroups]);
-    }, [equipment])
-
     // Declare temporary input state
     const initSignal : equipment = {
             id: -1,
@@ -99,6 +90,7 @@ const SignalDetails = () => {
             });
         };
     };   
+
     // DELETE signal from db
     const handleClickDelete: Function = () => {
         if(selection.id !== -1) socket.emit('DELETE', 'equipment', selection)
@@ -160,21 +152,21 @@ const SignalDetails = () => {
     };
     
     const handleCFChange = ( value : string) => {
-        let tmpValue = 0;
-        if(!isNaN(Number(value))) tmpValue = Number(value);
+        //let tmpValue = 0;
+        //if(!isNaN(Number(value))) tmpValue = Number(value);
         let tmpSelection = {
             ...selection,
-            cf: tmpValue
+            cf: Number(value)
         };
         setSelection(tmpSelection);
     };
     
     const handleDRChange = ( value : string) => {
-        let tmpValue = 0;
-        if(!isNaN(Number(value))) tmpValue = Number(value);
+        //let tmpValue = 0;
+        //if(!isNaN(Number(value))) tmpValue = Number(value);
         let tmpSelection = {
             ...selection,
-            dr: tmpValue
+            dr: Number(value)//tmpValue
         };
         setSelection(tmpSelection);
     }
@@ -200,11 +192,11 @@ const SignalDetails = () => {
     }
     
     const handlePowerChange = ( value : string) => {
-        let tmpValue = 0;
-        if(!isNaN(Number(value))) tmpValue = Number(value);
+        //let tmpValue = 0;
+        //if(!isNaN(Number(value))) tmpValue = Number(value);
         let tmpSelection = {
             ...selection,
-            power: -1 * Math.abs(tmpValue)
+            power: -1 * Math.abs(Number(value))
         };
         setSelection(tmpSelection);
     }
@@ -225,15 +217,67 @@ const SignalDetails = () => {
         setSelection(tmpSelection);
     }
 
-    const GroupComponent = ({ group } : { group : string }) => {
+    const GroupComponent = ({ group, signals } : { group : string, signals: any }) => {
         // TODO: enable/disable with group eyeball
+        const [v, setV] = useState<boolean>(true);
+        const handleClickV = () => {
+            setV(!v)
+        }
+        const [visibleGroup, setVisibleGroup] = useState<boolean>(true);
+        const handleClickGroupEyeball = () => {
+            signals.filter((x: any) => x.unit_type === group).forEach((signal: equipment) => {
+                if ( visibleGroup ) { 
+                    socket.emit('DELETE', 'satEnv', signal)
+                    socket.emit('PATCH', 'equipment', {
+                        ...signal,
+                        active: false
+                    })
+                    setVisibleGroup(!visibleGroup)
+                } else {
+                    socket.emit('POST', 'satEnv', {
+                        id: signal.id,
+                        server: signal.server,
+                        conn: signal.conn,
+                        team: signal.team,
+                        cf: Number(signal.cf),
+                        dr: Number(signal.dr),
+                        fec: Number(signal.fec),
+                        mod: Number(signal.mod),
+                        power: signal.power,
+                        band: satellites.filter(sat => sat.sat === signal.sat)[0].band,
+                        sat: signal.sat,
+                        feed: signal.feed,
+                        stage: "ULIF",
+                        active: true
+                    })
+                    socket.emit('PATCH', 'equipment', {
+                        ...signal,
+                        active: true
+                    })
+                    setVisibleGroup(!visibleGroup)
+                }
+            })
+
+        }
         return(
             <div className='signalGroup' key= { group }>
-                <span>{group}</span> 
+                <div>
+                    <span>{group}</span> 
+                    {v ? 
+                        <span onClick={() => handleClickV()}>^</span>
+                        : <span onClick={() => handleClickV()}>v</span>}
+                    {/*<TbEye color={!visibleGroup ? 'red' : 'white'} onClick={()=> handleClickGroupEyeball()}/>
+                    */}
+                </div>
                 <div></div>
-                {equipment.filter((x: any) => x.unit_type === group).sort((a,b) => (a.unit_name > b.unit_name) ? 1 : ((b.unit_name > a.unit_name) ? -1 : 0)).map((groupSignal: any, groupSignalIndex: number) => (
-                    <SignalComponent key={ groupSignalIndex } groupSignal= { groupSignal }/>
-                ))}
+                {v ? 
+                    signals.filter((x: any) => x.unit_type === group).sort((a: any,b: any) => (a.unit_name > b.unit_name) ? 1 : ((b.unit_name > a.unit_name) ? -1 : 0)).map((groupSignal: any, groupSignalIndex: number) => {
+                        //console.log(groupSignal)
+                        return(
+                        <SignalComponent key={ groupSignalIndex } groupSignal= { groupSignal }/>
+                    )})
+                    : <></>
+                }
             </div>
         )
     }
@@ -286,7 +330,7 @@ const SignalDetails = () => {
             </React.Fragment>
         )
     }
-
+    
     return(
         <>
             <div className="sidebar">
@@ -295,8 +339,20 @@ const SignalDetails = () => {
                     <TbPlus onClick={() => handleClickPlus()}/>
                 </div>
                 <hr></hr>
-                {groups?.map((group: string, groupID: number) => {
-                    return(<GroupComponent key={groupID} group={ group } />)
+                {satellites.map(satellite => {
+                    const signals = equipment.filter(signal => signal.sat === satellite.sat);
+                    const groups = [...new Set(signals.map(signal => signal.unit_type).sort((a: any,b: any) => (a > b) ? 1 : ((b > a) ? -1 : 0)))];
+                    return(
+                        <>
+                            <div>
+                                <span className='satGroup'>{satellite.sat}</span>
+                                <span></span>
+                            </div>
+                            {groups?.map((group: string, groupID: number) => {
+                                return(<GroupComponent key={ groupID } signals={ signals } group={ group } />)
+                            })}
+                        </>
+                    )
                 })}
                 <button onClick={() => handleClickSaveScenario()}>Save Scenario</button>
                 <button onClick={() => handleClickLoadScenario()}>Load Scenario</button>

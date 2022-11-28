@@ -11,7 +11,6 @@ function App() {
   const { setSatEnv } = useSatEnvContext();
   
   const handleEquipmentUpdate = (update: any) => {
-    console.log(update)
     setEquipment(update);
   };
   

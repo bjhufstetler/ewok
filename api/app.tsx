@@ -4,7 +4,7 @@
    ADDRESS ON LINE 7
 */
 
-const ipAddress = '10.11.112.140';
+const ipAddress = '192.168.1.82';
 
 var express = require("express");
 const app = express();

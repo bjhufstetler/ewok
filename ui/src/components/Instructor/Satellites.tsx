@@ -35,7 +35,6 @@ const Satellites = () => {
         });
 
         setSignals(tmpSignals);  
-        console.log('heard socket.emit')
     }, [satEnv]);
     
     const SatEnvPlot = ({ sat, lb, ub } : { sat: string, lb: number, ub: number}) => {
