@@ -6,23 +6,23 @@ const Transmitter = () => {
     const { equipment } = useEquipmentContext();
     const { socket } = useEwokContext();
     
-    let tmpAntenna = [...equipment.filter(x => x.unit_type == 'Antenna')][0];
-    let tmpTX = equipment.filter(x => x.unit_type == 'TX' && x.unit_name == tmpAntenna?.feed)[0];
+    let tmpAntenna = [...equipment.filter(x => x.unit_type === 'Antenna')][0];
+    const [modem, setModem] = useState<string>("1");
+    let tmpTX = equipment.filter(x => x.unit_type === 'TX' && x.unit_name === modem)[0];
     const [tx, setTX] = useState(tmpTX);
-    const [settings, setSettings] = useState({cf: 1000, power: -100, mod: 2, fec: 1, dr: 1});
+    const [settings, setSettings] = useState(tmpTX);
 
     useEffect(() => {
-        tmpAntenna = [...equipment.filter(x => x.unit_type == 'Antenna')][0];
-        tmpTX = [...equipment.filter(x => x.unit_type == 'TX' && x.unit_name == tmpAntenna?.feed)][0];
+        tmpTX = [...equipment.filter(x => x.unit_type === 'TX' && x.unit_name === modem)][0];
         setTX(tmpTX);
-    }, [equipment])
+    }, [equipment, modem])
+
+    useEffect(() => {
+        setSettings(tx);
+    }, [tx])
 
     const handleClickModem = (num: string) => {
-        const tmpEquipment = {
-            ...tmpAntenna,
-            feed: num,
-        }
-        socket.emit('PATCH', 'equipment', tmpEquipment)
+        setModem(num);    
     }
 
     const handleChangeCF = (e: any) => {
@@ -90,7 +90,6 @@ const Transmitter = () => {
                 lb: tmpAntenna?.power === 0 ? false : true,
                 active: tmpAntenna.active
             }
-            console.log(tmpSignal)
             socket.emit('PATCH', 'satEnv', tmpSignal)
         }
     }
@@ -114,7 +113,6 @@ const Transmitter = () => {
             active: tmpAntenna?.active
         }
         if(tx.active) {
-            console.log(tx)
             socket.emit('DELETE', 'satEnv', tmpSignal)
             const tmpEquipment = {
                 ...tx,
@@ -133,10 +131,10 @@ const Transmitter = () => {
 
     const TxModemSelect = () => {
         let txModemSelect: any = [];
-        const modems = equipment.filter((modem: any) => modem.unit_type == "TX");
+        const modems = equipment.filter((modem: any) => modem.unit_type === "TX");
         ['1', '2', '3', '4', '5', '6', '7', '8'].forEach(x => {
-            const modemActive = modems?.filter((modem: any) => modem.unit_name == x)[0]?.active;
-            const selected = tx?.unit_name == x;
+            const modemActive = modems?.filter((modem: any) => modem.unit_name === x)[0]?.active;
+            const selected = tx?.unit_name === x;
             let className = 'button'
             selected ?
                 modemActive ?
@@ -170,10 +168,10 @@ const Transmitter = () => {
                     <span className='value'>{tx?.dr}</span>
                     <span className='unit'>MHz</span>
                     <span className='label'>Modulation:</span>    
-                    <span className='value'>{tx?.mod}</span>
+                    <span className='value'>{tx?.mod === 1 ? 'BPSK' : 'QPSK'}</span>
                     <span className='unit'></span>
                     <span className='label'>FEC:</span>    
-                    <span className='value'>{tx?.fec}</span>
+                    <span className='value'>{tx?.fec === 1 ? '1/2' : tx?.fec === 3 ? '3/4' : '7/8'}</span>
                     <span className='unit'></span>
                     <span className='label'>Power:</span>    
                     <span className='value'>{tx?.power}</span>

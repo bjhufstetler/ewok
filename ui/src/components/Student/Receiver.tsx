@@ -7,6 +7,7 @@ const Receiver = () => {
     const { socket } = useEwokContext();
     const { equipment } = useEquipmentContext();
     const { satEnv } = useSatEnvContext();
+    const { satellites } = useEwokContext();
     const tmpRx = equipment?.filter(x => x.unit_type === 'RX')[0];
     const [rx, setRx] = useState(tmpRx)
     const [settings, setSettings] = useState(tmpRx);
@@ -14,8 +15,9 @@ const Receiver = () => {
     useEffect(() => {
         let tmpFeed = 'static.mp4';
         satEnv?.filter(x => x.team === 'Instructor').forEach(signal => {
+            const ttf = satellites.filter(x => x.sat === signal.sat)[0].ttf
             if( 
-                Math.abs(signal.cf - rx?.cf) < .5 && 
+                Math.abs(signal.cf + ttf - rx?.cf) < .5 && 
                 signal.fec === rx?.fec && 
                 signal.mod === rx?.mod) {
                     tmpFeed = signal.feed;

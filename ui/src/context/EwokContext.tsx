@@ -25,8 +25,8 @@ const EwokProvider: FunctionComponent<EwokProviderProps> = ({ children }) => {
     
     const satellites = [
         {sat: 'ASH', band: 'C', uc: 5100, dc: -5100, ttf: 20, fspl: 15},
-        {sat: 'DRSC', band: 'Ku', uc: 11050, dc: -11050, ttf: 15.25, fspl: 9},
-        {sat: 'ArCOM', band: 'Ka', uc: 29025, dc: -29025, ttf: 7.5, fspl: 6}
+        {sat: 'DRSC', band: 'Ku', uc: 11050, dc: -11050, ttf: 15, fspl: 9},
+        {sat: 'ArCOM', band: 'Ka', uc: 29025, dc: -29025, ttf: -7, fspl: 6}
     ];
     
     //const socket = io(socketUrl);

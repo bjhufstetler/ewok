@@ -4,7 +4,8 @@
    ADDRESS ON LINE 7
 */
 
-const ipAddress = '192.168.1.82';
+
+const ipAddress = [ '10.11.121.140', '192.168.1.82'];
 
 var express = require("express");
 const app = express();
@@ -13,7 +14,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
     cors: { 
         //origin: 'https://bjhufstetler.github.io'
-        origin: ['http://localhost:3000', `http://${ipAddress}:3000`]
+        origin: ['http://localhost:3000', `http://${ipAddress[0]}:3000`, `http://${ipAddress[1]}:3000`]
     }
 });
 

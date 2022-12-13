@@ -4,8 +4,19 @@ import Antenna from "./Antenna";
 import SpecA from "./SpecA";
 import Subheader from "../Page/Subheader";
 import './StudentPage.css';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEwokContext } from "../../context/EwokContext";
 
 const StudentPage = () => {
+    const ewok = useEwokContext()
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if(ewok.ewok.server === ''){
+            navigate('/')
+        }
+    }, [])
     return(
         <div className='studentPage'>
             <Subheader/>

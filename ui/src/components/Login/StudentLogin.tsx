@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEquipmentContext, useEwokContext, useSatEnvContext } from "../../context/EwokContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const StudentLogin = () => {
     const navigate = useNavigate();
@@ -8,6 +8,20 @@ const StudentLogin = () => {
     const { setEquipment } = useEquipmentContext();
     const { setSatEnv } = useSatEnvContext();
     const [ auth, setAuth ] = useState<{team: string, server: string}>({team: "Victor", server: ""})
+    
+    const [serverList, setServerList] = useState<[string]>();
+    useEffect(() => {
+        fetch(`${ewok.baseURL}/server`)
+            .then(res => {
+                console.log(res);
+                return(res.json());
+            })
+            .then(servers => {
+                console.log(servers)
+                setServerList(servers)
+            });
+    }, [])
+
     const handleChangeServer = (e:any) => {
         const tmpAuth = {
             ...auth,
@@ -15,6 +29,7 @@ const StudentLogin = () => {
         };
         setAuth(tmpAuth);
     }
+
     const handleChangeTeam = (e:any) => {
         const tmpAuth = {
             ...auth,
@@ -22,21 +37,24 @@ const StudentLogin = () => {
         };
         setAuth(tmpAuth);
     }
+
     const handleClickJoin = () => {
-        const tmpEwok = {
-            ...ewok,
-            team: auth.team,
-            server: auth.server
-        };
-        socket.emit('JOIN', auth.server, auth.team)
-        setEwok(tmpEwok);
-        fetch(`${ewok.baseURL}/equipment?server=${auth.server}&team=${auth.team}`)
-            .then(res => res.json())
-            .then(data => setEquipment(data))
-        fetch(`${ewok.baseURL}/satEnv?server=${auth.server}`)
-            .then(res => res.json())
-            .then(data => setSatEnv(data))
-        navigate("/student");
+        if(serverList?.includes(auth.server)){
+            const tmpEwok = {
+                ...ewok,
+                team: auth.team,
+                server: auth.server
+            };
+            socket.emit('JOIN', auth.server, auth.team)
+            setEwok(tmpEwok);
+            fetch(`${ewok.baseURL}/equipment?server=${auth.server}&team=${auth.team}`)
+                .then(res => res.json())
+                .then(data => setEquipment(data))
+            fetch(`${ewok.baseURL}/satEnv?server=${auth.server}`)
+                .then(res => res.json())
+                .then(data => setSatEnv(data))
+            navigate("/student");
+        }
     };
     return(
         <div className="Card">

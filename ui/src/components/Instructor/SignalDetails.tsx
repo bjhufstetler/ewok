@@ -107,31 +107,33 @@ const SignalDetails = () => {
     // Patch entry in db
     const handleClickSave: Function = () => {
         if ( selection.id > -1 ) {
-            // Get active from [equipment]
-            const index = equipment.map((x: any) => x.id).indexOf(selection.id);
-            const tmpActive : boolean = equipment[index].active;
-            const band = satellites.filter(x => x.sat === selection.sat)[0]?.band;
-            const tmpSelection = {...selection, active: tmpActive};
-            // If active, PATCH [satEnv]
-            if ( tmpActive ) {
-                const tmpSignal = {
-                    id: selection.id,
-                    server: selection.server,
-                    conn: selection.conn,
-                    team: selection.team,
-                    cf: Number(selection.cf),
-                    dr: Number(selection.dr),
-                    fec: Number(selection.fec),
-                    mod: Number(selection.mod),
-                    power: selection.power,
-                    sat: selection.sat,
-                    feed: selection.feed,
-                    band: band,
-                    stage: "ULRF"
+            if (!isNaN(Number(selection.cf)) && !isNaN(Number(selection.dr)) && !isNaN(Number(selection.power))) {
+                // Get active from [equipment]
+                const index = equipment.map((x: any) => x.id).indexOf(selection.id);
+                const tmpActive : boolean = equipment[index].active;
+                const band = satellites.filter(x => x.sat === selection.sat)[0]?.band;
+                const tmpSelection = {...selection, active: tmpActive};
+                // If active, PATCH [satEnv]
+                if ( tmpActive ) {
+                    const tmpSignal = {
+                        id: selection.id,
+                        server: selection.server,
+                        conn: selection.conn,
+                        team: selection.team,
+                        cf: Number(selection.cf),
+                        dr: Number(selection.dr),
+                        fec: Number(selection.fec),
+                        mod: Number(selection.mod),
+                        power: selection.power,
+                        sat: selection.sat,
+                        feed: selection.feed,
+                        band: band,
+                        stage: "ULRF"
+                    };
+                    socket.emit('PATCH', 'satEnv', tmpSignal);
                 };
-                socket.emit('PATCH', 'satEnv', tmpSignal);
-            };
-            socket.emit('PATCH', 'equipment', tmpSelection);
+                socket.emit('PATCH', 'equipment', tmpSelection);
+            }
         };
     };
     
@@ -151,22 +153,18 @@ const SignalDetails = () => {
         setSelection(tmpSelection);
     };
     
-    const handleCFChange = ( value : string) => {
-        //let tmpValue = 0;
-        //if(!isNaN(Number(value))) tmpValue = Number(value);
+    const handleCFChange = ( value : any) => {
         let tmpSelection = {
             ...selection,
-            cf: Number(value)
+            cf: value
         };
         setSelection(tmpSelection);
     };
     
-    const handleDRChange = ( value : string) => {
-        //let tmpValue = 0;
-        //if(!isNaN(Number(value))) tmpValue = Number(value);
+    const handleDRChange = ( value : any) => {
         let tmpSelection = {
             ...selection,
-            dr: Number(value)//tmpValue
+            dr: value
         };
         setSelection(tmpSelection);
     }
@@ -191,12 +189,10 @@ const SignalDetails = () => {
         setSelection(tmpSelection);
     }
     
-    const handlePowerChange = ( value : string) => {
-        //let tmpValue = 0;
-        //if(!isNaN(Number(value))) tmpValue = Number(value);
+    const handlePowerChange = ( value : any) => {
         let tmpSelection = {
             ...selection,
-            power: -1 * Math.abs(Number(value))
+            power: value
         };
         setSelection(tmpSelection);
     }
@@ -368,7 +364,10 @@ const SignalDetails = () => {
                 </div>
                 <div>
                     <span>CF</span>
-                    <input type='text' value={selection?.cf} onChange={e => handleCFChange(e.target.value)}></input>
+                    {isNaN(Number(selection.cf)) ? 
+                        <input type='text' className='invalid' value={selection?.cf} onChange={e => handleCFChange(e.target.value)}></input>
+                        : <input type='text' value={selection?.cf} onChange={e => handleCFChange(e.target.value)}></input>}
+                    
                     <span>MHz</span>
                 </div>
                 <div>
