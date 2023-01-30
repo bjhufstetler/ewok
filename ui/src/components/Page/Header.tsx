@@ -5,7 +5,7 @@ const Header = () => {
     const location = useLocation();
 
     const handleClickHelp = () => {
-        if(location.pathname == '/help'){
+        if(location.pathname === '/help'){
             navigate(-1)
         } else {
             navigate('/help')

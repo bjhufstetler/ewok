@@ -77,7 +77,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         && Number(settings.lb) < Number(settings.ub)) {
             const cf = Number(settings.cf);
             const bw = Number(settings.bw);
-            if (cf != specA.cf || bw != specA.bw ) setY(initY);
+            if (cf !== specA.cf || bw !== specA.bw ) setY(initY);
             const ub = Number(settings.ub);
             const lb = Number(settings.lb);
             const tmpBw = cf - bw/2 <= 0 ? cf * 2 : bw;
@@ -161,7 +161,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     }
 
     const SpecAPlot = () => {
-        const plotTimerObserver = plotTimer;
+        //const plotTimerObserver = plotTimer;
         const plotXRange = [specA?.cf - specA?.bw / 2, specA?.cf + specA?.bw / 2];
         const plotX : Array<number> = Array(1000).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0]);
         const plotYLimit : Array<number> = Array(1000).fill(-60);

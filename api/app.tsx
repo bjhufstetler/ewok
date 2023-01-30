@@ -5,7 +5,7 @@
 */
 
 
-const ipAddress = [ '10.11.121.140', '192.168.1.82'];
+const ipAddress = [ '10.11.121.140', '192.168.1.82', '10.11.87.119'];
 
 var express = require("express");
 const app = express();
@@ -14,7 +14,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
     cors: { 
         //origin: 'https://bjhufstetler.github.io'
-        origin: ['http://localhost:3000', `http://${ipAddress[0]}:3000`, `http://${ipAddress[1]}:3000`]
+        origin: ['http://localhost:3000', `http://${ipAddress[0]}:3000`, `http://${ipAddress[1]}:3000`, `http://${ipAddress[2]}:3000`]
     }
 });
 

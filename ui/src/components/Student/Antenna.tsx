@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { EwokContext, SatEnvContext, useEquipmentContext, useEwokContext, useSatEnvContext } from "../../context/EwokContext";
+import { useEquipmentContext, useEwokContext, useSatEnvContext } from "../../context/EwokContext";
 import './Antenna.css'
 
 const Antenna = () => {
@@ -9,11 +9,11 @@ const Antenna = () => {
     const { equipment } = useEquipmentContext();
     const { satEnv } = useSatEnvContext();
 
-    const antenna = {...equipment?.filter(x => x.unit_type == 'Antenna')[0]};
+    const antenna = {...equipment?.filter(x => x.unit_type === 'Antenna')[0]};
     const [settings, setSettings] = useState({...antenna});
 
     useEffect(() => {
-        const tmpAntenna = equipment.filter(x => x.unit_type == 'Antenna')[0];
+        const tmpAntenna = equipment.filter(x => x.unit_type === 'Antenna')[0];
         setSettings(tmpAntenna);
     }, [equipment])
 
@@ -26,7 +26,7 @@ const Antenna = () => {
             }
         socket.emit('PATCH', 'equipment', tmpEquipment)
 
-        satEnv.filter(x => x.team == ewok.team).forEach(signal => {
+        satEnv.filter(x => x.team === ewok.team).forEach(signal => {
             const tmpSignal = {
                 ...signal,
                 lb: lb,
@@ -44,7 +44,7 @@ const Antenna = () => {
         }
         socket.emit('PATCH', 'equipment', tmpEquipment)
 
-        satEnv.filter(x => x.team == ewok.team).forEach(signal => {
+        satEnv.filter(x => x.team === ewok.team).forEach(signal => {
             const tmpSignal = {
                 ...signal,
                 active: !antenna.active
@@ -86,7 +86,7 @@ const Antenna = () => {
             cf: Number(settings?.cf)
         };
         socket.emit('PATCH', 'equipment', tmpEquipment)
-        satEnv.filter(x => x.team == ewok.team).forEach(signal => {
+        satEnv.filter(x => x.team === ewok.team).forEach(signal => {
             const tmpSignal = {
                 ...signal,
                 band: settings?.unit_name

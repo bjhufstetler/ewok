@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { TbPlus, TbEyeOff, TbEye } from 'react-icons/tb';
 import { useEwokContext, useEquipmentContext, useSatEnvContext } from '../../context/EwokContext';
 
@@ -220,7 +220,8 @@ const SignalDetails = () => {
             setV(!v)
         }
         const [visibleGroup, setVisibleGroup] = useState<boolean>(true);
-        const handleClickGroupEyeball = () => {
+        
+        /*const handleClickGroupEyeball = () => {
             signals.filter((x: any) => x.unit_type === group).forEach((signal: equipment) => {
                 if ( visibleGroup ) { 
                     socket.emit('DELETE', 'satEnv', signal)
@@ -255,6 +256,7 @@ const SignalDetails = () => {
             })
 
         }
+        */
         return(
             <div className='signalGroup' key= { group }>
                 <div>
