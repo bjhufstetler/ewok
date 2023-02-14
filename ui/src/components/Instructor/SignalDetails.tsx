@@ -333,7 +333,7 @@ const SignalDetails = () => {
         <>
             <div className="sidebar">
                 <div>
-                    <span style={{fontWeight: "bold"}}>SIGNALS</span>
+                    <span>Signals</span>
                     <TbPlus onClick={() => handleClickPlus()}/>
                 </div>
                 <hr></hr>
@@ -352,8 +352,8 @@ const SignalDetails = () => {
                         </>
                     )
                 })}
-                <button  id="sidebarSaveButton" onClick={() => handleClickSaveScenario()}>Save Scenario</button>
-                <button id="sidebarLoadButton" onClick={() => handleClickLoadScenario()}>Load Scenario</button>
+                <button onClick={() => handleClickSaveScenario()}>Save Scenario</button>
+                <button onClick={() => handleClickLoadScenario()}>Load Scenario</button>
             </div>
             <div className="signalDetails">
                 <div>
@@ -427,7 +427,7 @@ const SignalDetails = () => {
                     </select>
                     <span>dB</span>
                 </div>
-                <div className="signalDetailButtons">
+                <div>
                     <button onClick = {() => handleClickDelete()}>Delete</button>
                     <button onClick = {() => handleClickRevert()}>Revert</button>
                     <button onClick = {() => handleClickSave()}>Save</button>

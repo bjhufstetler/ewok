@@ -4,8 +4,6 @@
     top: 120px;
     display: grid;
     grid-template-columns: 300px 400px auto;
-    padding-left: 15px;
-    padding-top: 10px;
 }
 
 .sidebar {
@@ -21,22 +19,6 @@
     display: grid;
     grid-template-columns: 4fr 1fr;
     align-items: center;
-    color: whitesmoke;
-}
-
-
-.sidebar button {
-    color: black;
-    margin-bottom: 10px;
-}
-
-.sidebar #sidebarSaveButton {
-    margin-top: 10px;
-}
-
-.signalDetails .signalDetailButtons button {
-    background-color: #393e47;
-    color: white;
 }
 
 .signalGroup {
@@ -70,7 +52,6 @@
     margin-top: 10px;
     margin-right: 20px;
 }
-
 
 
 .signalDetails :last-child {

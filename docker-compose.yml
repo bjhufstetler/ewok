@@ -65,7 +65,6 @@ services:
       - type: bind
         source: ./ui
         target: /app
-        
   
 networks:
   app-network:

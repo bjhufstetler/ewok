@@ -104,7 +104,6 @@ select {
   font-size: 30px;
   display:grid;
   grid-template-columns: 1fr 1fr;
-  color: whitesmoke;
 }
 
 .header * {
@@ -129,5 +128,4 @@ select {
   display: flex;
   justify-content: space-between;
   padding: 10px 5% 10px 20px;
-  color: whitesmoke;
 }
