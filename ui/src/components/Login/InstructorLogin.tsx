@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const InstructorLogin = () => {
-    const code = "EWOKDEV"; // INSTRUCTOR PASSWORD
+    const code = "HufEwok"; // INSTRUCTOR PASSWORD
     const navigate = useNavigate();
 
     const [password, setPassword] = useState<string>("");
