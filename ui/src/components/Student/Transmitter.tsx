@@ -61,6 +61,17 @@ const Transmitter = () => {
         };
         setSettings(tmpSettings);
     };
+    // const handleKeyDown = (e: any) => {
+    //     const key = e.code;
+    //     if (key === "Enter" || key === "Tab") {
+    //         const tmpSettings = {
+    //             ...settings,
+    //             power: Number(e.target.value)
+    //         };
+    //         setSettings(tmpSettings);
+    //     }
+    // }
+
     const handleChangeFec = (e: any) => {
         const tmpSettings = {
             ...settings,
@@ -219,7 +230,7 @@ const Transmitter = () => {
                     </select>
                     <span className='unit'></span>
                     <span className='label'>Power:</span>    
-                    <input type='text' value={settings?.power} onChange={e => handleChangePower(e)}></input>
+                    <input type='text' value={settings?.power} /*onKeyDown={e=>handleKeyDown(e)}*/ onChange={e => handleChangePower(e)}></input>
                     <span className='unit'>dB</span>
                     <span></span>
                     <div className='powerIncrementButton'>
