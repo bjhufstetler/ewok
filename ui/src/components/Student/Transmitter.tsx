@@ -261,7 +261,7 @@ const Transmitter = () => {
                     <span className='label'>Power:</span>    
                     <span className='value'>{tx?.power}</span>
                     <span className='unit'>dB</span>
-                    <div>1 dB</div>
+                    <div>&#177;1 dB</div>
                     <div className='powerIncrementButton'>
                         <button onClick={handleMinusPowerButton}>-</button>
                         <button onClick={handlePlusPowerButton}>+</button>
