@@ -6,7 +6,7 @@ volumes:
 services:
   ewok-db:
     image: postgres
-    container_name: db
+    container_name: db_2
     restart: always
     environment:
       - DATABASE_HOST=127.0.0.1
@@ -28,7 +28,7 @@ services:
 
   ewok-api:
     build: api/
-    container_name: api
+    container_name: api_2
     depends_on:
       ewok-db:
         condition: service_healthy
@@ -52,7 +52,7 @@ services:
   ewok-ui:
     build: ui/
     tty: true
-    container_name: ui
+    container_name: ui_2
     environment:
       - FAST_REFRESH=false
     depends_on:
