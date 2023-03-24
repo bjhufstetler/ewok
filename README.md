@@ -1,8 +1,15 @@
 # ewok
-
+## Required Software
+Git
+<br>
+npm
+<br>
+Docker
 ## To run: 
-git clone git@github.com:bjhufstetler/ewok.git
+../ > git clone git@github.com:bjhufstetler/ewok.git
 <br>
-cd ui
+../ewok/api > npm i
 <br>
-npm run dev
+../ewok/ui > npm i
+<br>
+../ewok > docker compose up
