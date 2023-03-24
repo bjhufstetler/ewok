@@ -25,6 +25,21 @@ const Transmitter = () => {
         setModem(num);    
     }
 
+    const handlePlusPowerButton = (e: any) => {
+        const tmpSettings = {
+            ...settings,
+            power: settings.power + 1
+        };
+        setSettings(tmpSettings);
+    }
+    const handleMinusPowerButton = (e: any) => {
+        const tmpSettings = {
+            ...settings,
+            power: settings.power - 1
+        };
+        setSettings(tmpSettings);
+    }
+    
     const handleChangeCF = (e: any) => {
         const tmpSettings = {
             ...settings,
@@ -46,6 +61,17 @@ const Transmitter = () => {
         };
         setSettings(tmpSettings);
     };
+    // const handleKeyDown = (e: any) => {
+    //     const key = e.code;
+    //     if (key === "Enter" || key === "Tab") {
+    //         const tmpSettings = {
+    //             ...settings,
+    //             power: Number(e.target.value)
+    //         };
+    //         setSettings(tmpSettings);
+    //     }
+    // }
+
     const handleChangeFec = (e: any) => {
         const tmpSettings = {
             ...settings,
@@ -204,8 +230,13 @@ const Transmitter = () => {
                     </select>
                     <span className='unit'></span>
                     <span className='label'>Power:</span>    
-                    <input type='text' value={settings?.power} onChange={e => handleChangePower(e)}></input>
+                    <input type='text' value={settings?.power} /*onKeyDown={e=>handleKeyDown(e)}*/ onChange={e => handleChangePower(e)}></input>
                     <span className='unit'>dB</span>
+                    <span></span>
+                    <div className='powerIncrementButton'>
+                        <button onClick={handleMinusPowerButton}>-</button>
+                        <button onClick={handlePlusPowerButton}>+</button>
+                    </div><div></div>
                     <span></span>
                     <button onClick={() => handleClickUpdate()}>Update</button>
                 </div>   
