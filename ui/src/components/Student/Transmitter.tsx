@@ -18,7 +18,7 @@ const Transmitter = () => {
     }, [equipment, modem])
 
     useEffect(() => {
-        setSettings(tx);
+        setSettings(tx)
     }, [tx])
 
     const handleClickModem = (num: string) => {
@@ -31,13 +31,72 @@ const Transmitter = () => {
             power: settings.power + 1
         };
         setSettings(tmpSettings);
-    }
+        const tmpEquipment = {
+            ...tx,
+            cf: tmpSettings.cf,
+            dr: tmpSettings.dr,
+            mod: tmpSettings.mod,
+            fec: tmpSettings.fec,
+            power: tmpSettings.power
+        }
+        socket.emit('PATCH', 'equipment', tmpEquipment)
+        if(tx.active){
+            const tmpSignal = {
+                id: tx.id,
+                server: tx.server,
+                conn: tx.conn,
+                team: tx.team,
+                cf: tmpSettings.cf,
+                dr: tmpSettings.dr,
+                mod: tmpSettings.mod,
+                fec: tmpSettings.fec,
+                power: tmpSettings.power,
+                band: tmpAntenna.unit_name,
+                sat: tmpAntenna.sat,
+                feed: tx.feed,
+                stage: "ULRF",
+                lb: tmpAntenna?.power === 0 ? false : true,
+                active: tmpAntenna.active
+            }
+            socket.emit('PATCH', 'satEnv', tmpSignal)
+        }
+    };
+
     const handleMinusPowerButton = (e: any) => {
         const tmpSettings = {
             ...settings,
             power: settings.power - 1
         };
         setSettings(tmpSettings);
+        const tmpEquipment = {
+            ...tx,
+            cf: tmpSettings.cf,
+            dr: tmpSettings.dr,
+            mod: tmpSettings.mod,
+            fec: tmpSettings.fec,
+            power: tmpSettings.power
+        }
+        socket.emit('PATCH', 'equipment', tmpEquipment)
+        if(tx.active){
+            const tmpSignal = {
+                id: tx.id,
+                server: tx.server,
+                conn: tx.conn,
+                team: tx.team,
+                cf: tmpSettings.cf,
+                dr: tmpSettings.dr,
+                mod: tmpSettings.mod,
+                fec: tmpSettings.fec,
+                power: tmpSettings.power,
+                band: tmpAntenna.unit_name,
+                sat: tmpAntenna.sat,
+                feed: tx.feed,
+                stage: "ULRF",
+                lb: tmpAntenna?.power === 0 ? false : true,
+                active: tmpAntenna.active
+            }
+            socket.emit('PATCH', 'satEnv', tmpSignal)
+        }
     }
     
     const handleChangeCF = (e: any) => {
@@ -202,6 +261,11 @@ const Transmitter = () => {
                     <span className='label'>Power:</span>    
                     <span className='value'>{tx?.power}</span>
                     <span className='unit'>dB</span>
+                    <div>1 dB</div>
+                    <div className='powerIncrementButton'>
+                        <button onClick={handleMinusPowerButton}>-</button>
+                        <button onClick={handlePlusPowerButton}>+</button>
+                    </div><div></div>
                     <span>TX</span>
                     {
                         tx?.active ? 
@@ -232,11 +296,6 @@ const Transmitter = () => {
                     <span className='label'>Power:</span>    
                     <input type='text' value={settings?.power} /*onKeyDown={e=>handleKeyDown(e)}*/ onChange={e => handleChangePower(e)}></input>
                     <span className='unit'>dB</span>
-                    <span></span>
-                    <div className='powerIncrementButton'>
-                        <button onClick={handleMinusPowerButton}>-</button>
-                        <button onClick={handlePlusPowerButton}>+</button>
-                    </div><div></div>
                     <span></span>
                     <button onClick={() => handleClickUpdate()}>Update</button>
                 </div>   
