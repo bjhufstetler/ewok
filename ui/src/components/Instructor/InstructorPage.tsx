@@ -1,7 +1,7 @@
 import './InstructorPage.css';
 import SignalDetails from './SignalDetails';
 import Satellites from './Satellites';
-import { Subheader } from '..';
+import { Chat, Subheader } from '..';
 import { useNavigate } from "react-router-dom";
 import { useEwokContext } from '../../context/EwokContext';
 import { useEffect } from 'react';
@@ -19,6 +19,7 @@ const InstructorPage = () => {
         <>
             <Subheader />
             <div className="instructorPage">
+                <Chat/>
                 <SignalDetails />
                 <div className="satellites"><Satellites /></div>
             </div>
