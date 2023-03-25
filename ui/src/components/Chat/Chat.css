@@ -1,0 +1,46 @@
+.messages {
+    border: 1px solid black;
+    margin: 5px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
+    height: 700px;
+    background: #393e47;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.messages * {
+    text-align: left;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.messages :nth-child(even) {
+    border-bottom: 1px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    border-radius: 5px;
+    text-align: right;
+}
+.messages :nth-child(odd) {
+    margin-top: 10px;
+    border-top: 1px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    border-radius: 5px;
+}
+
+.chat-Victor, .chat-Whiskey, .chat-Xray, .chat-Yankee, .chat-Zulu {
+    background-color: #222834;
+}
+.chat-Instructor {
+    background-color: red;
+}
+
+.currentMessage {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 210px;
+    height: 40px;
+}

@@ -8,6 +8,7 @@ import StudentPage from "./Student/StudentPage";
 import Header from "./Page/Header";
 import Subheader from "./Page/Subheader";
 import Help from "./Page/Help";
+import Chat from "./Chat/Chat";
 
 export { Landing,
     StudentLogin,
@@ -18,4 +19,5 @@ export { Landing,
     InstructorPage,
     Header,
     Subheader,
-    Help};
+    Help,
+    Chat};

@@ -163,7 +163,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     const SpecAPlot = () => {
         //const plotTimerObserver = plotTimer;
         const plotXRange = [specA?.cf - specA?.bw / 2, specA?.cf + specA?.bw / 2];
-        const plotX : Array<number> = Array(500).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0]);
+        const plotX : Array<number> = Array(500).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 500 + plotXRange[0]);
         const plotYLimit : Array<number> = Array(500).fill(-60);
         let plotY : Array<number> = y;
         let tmpMaxY : Array<number> = maxY;

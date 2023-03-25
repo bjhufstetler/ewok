@@ -5,12 +5,12 @@
     height: 90%;
     width: 100%;
     display: grid;
-    grid-template-columns: 190px 850px 850px;
+    grid-template-columns: 250px 850px 850px;
     grid-template-rows: 480px 480px 300px;
     overflow-x: scroll;
 }
 
-.SpecA, .Receiver, .Transmitter, .Antenna {
+.SpecA, .Receiver, .Transmitter, .Antenna, .Chat {
     width: 800px;
     height: 430px;
     border: 1px solid black;
@@ -21,9 +21,16 @@
 }
 
 .Antenna {
+    margin-left: 65px;
     padding: 10px;
     width: 160px;
     height: 360px;
+}
+
+.Chat {
+    padding: 10px;
+    width: 220px;
+    height: 800px;
 }
 
 .Receiver, .Transmitter {
