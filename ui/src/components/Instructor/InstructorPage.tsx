@@ -19,9 +19,9 @@ const InstructorPage = () => {
         <>
             <Subheader />
             <div className="instructorPage">
-                <Chat/>
                 <SignalDetails />
                 <div className="satellites"><Satellites /></div>
+                <Chat/>
             </div>
         </>
     )

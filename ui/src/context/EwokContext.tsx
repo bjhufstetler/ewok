@@ -2,10 +2,6 @@ import PropTypes from "prop-types";
 import { FunctionComponent, useContext, useState, useMemo, createContext, useEffect } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { io } from 'socket.io-client';
-//import config from '../config';
-//const configIndex = process.env.REACT_APP_NODE_ENV ? 1 : 0;
-//const configIndex = 0;
-//const socketUrl: string = config[configIndex].socketUrl;
 
 const tmpIp = window.location.href.split(':3000', 1)[0];
 

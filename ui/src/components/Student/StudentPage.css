@@ -5,7 +5,7 @@
     height: 90%;
     width: 100%;
     display: grid;
-    grid-template-columns: 190px 850px 850px;
+    grid-template-columns: 190px 850px 850px 420px;
     grid-template-rows: 480px 480px 300px;
     overflow-x: scroll;
 }

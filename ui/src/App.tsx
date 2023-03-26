@@ -6,7 +6,7 @@ import './App.css';
 
 function App() {
 
-  const { socket, ewok } = useEwokContext();
+  const { socket } = useEwokContext();
   const { setEquipment } = useEquipmentContext();
   const { setSatEnv } = useSatEnvContext();
   
@@ -40,7 +40,6 @@ function App() {
           <Route path="/instructorJoin" element={<InstructorJoin/>} />
           <Route path="/instructor" element={<InstructorPage/>} />
           <Route path="/help" element={<Help/>} />
-          <Route path="/chat" element={<Chat />} />
         </Routes> 
       </div>
     </Router>

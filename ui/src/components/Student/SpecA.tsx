@@ -92,7 +92,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         }
     };
     
-    const [markerX, setMarkerX] = useState<number>(500);
+    const [markerX, setMarkerX] = useState<number>(250);
     const initY = Array(500).fill(-103);
     const initYMax = Array(500).fill(-110);
     const [y, setY] = useState<any>(initY)

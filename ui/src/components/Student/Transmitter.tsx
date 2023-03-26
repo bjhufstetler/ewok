@@ -120,16 +120,6 @@ const Transmitter = () => {
         };
         setSettings(tmpSettings);
     };
-    // const handleKeyDown = (e: any) => {
-    //     const key = e.code;
-    //     if (key === "Enter" || key === "Tab") {
-    //         const tmpSettings = {
-    //             ...settings,
-    //             power: Number(e.target.value)
-    //         };
-    //         setSettings(tmpSettings);
-    //     }
-    // }
 
     const handleChangeFec = (e: any) => {
         const tmpSettings = {

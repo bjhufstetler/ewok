@@ -1,65 +1,81 @@
-import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import './Chat.css';
+import { useState, useEffect, useRef } from 'react';
 import { useEwokContext } from '../../context/EwokContext';
-import { useEffect } from 'react';
+import './Chat.css';
+
 
 const Chat = () => {
-    const location = useLocation();
-    const [info, setInfo] = useState<any>({team:'0', server:'0'})
-    useEffect(() => {
-        let search = location.search.split("?")
-        const tmpInfo = {...info, team: search[1], server: search[2]};
-        setInfo(tmpInfo);
-    },[location])
-    const ewok = useEwokContext();
+    const { socket, ewok } = useEwokContext();
     const [messages, setMessages] = useState<messages>({messages: [], currentMessage: ""});
+    const [chatVisible, setChatVisible] = useState<boolean>(false);
+
+    const handleChatUpdate = (update: any) => {
+        const tmpMessages = messages.messages;
+        tmpMessages.push(update.message);
+        setMessages({ messages: tmpMessages, currentMessage: "" });
+        if ( chatVisible && ewok.team !== 'Instructor' && update.sender === 'Instructor' ) alert('Message')
+    };
+    
+    useEffect(() => {
+        console.log('heard')
+        socket?.on('CHAT_API', handleChatUpdate);
+    }, [socket]);
 
     const handleSubmit = (e: any) => {
       e.preventDefault();
+      if ( messages.currentMessage === "") return;
       const date = new Date();
       const time = `${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}:${("0" + date.getSeconds()).slice(-2)}`;
-      const tmpMessages = [...messages.messages];
       const newMessage = {
         time: time,
-        sender: ewok.ewok.team,
+        sender: ewok.team === 'Instructor' ? 'Instructor': 'Student',
         message: messages.currentMessage
       };
-      tmpMessages.push(newMessage);
-      setMessages({ messages: tmpMessages, currentMessage: "" });
-      // TODO: push to everyone on server 
+      socket.emit('CHAT', {server: ewok.server, message: newMessage});
     };
   
     const handleChange = (e: any) => {
       setMessages({ ...messages, currentMessage: e.target.value });
     };
-  
-    const header = document.getElementById('header');
-    header?.remove();
+
+    const containerRef = useRef<any>(null)
+    useEffect(() => {
+      if(containerRef && containerRef.current) {
+        const element = containerRef.current;
+        element.scroll({
+          top: element.scrollHeight,
+          left: 0,
+          behavior: "smooth"
+        })
+      }
+
+    }, [containerRef, messages])
 
     return (
-    <div className='Chat'>
-        <div className='messages'>
-            {messages.messages.map((message, index) => (
-                <div key={index} className={`chat-${info.team}`}>
-                    <div>
-                        {message.time}
+        <div className='Chat'>
+        <button onClick={() => setChatVisible(!chatVisible)}>Show/Hide Chat</button>
+        {chatVisible && <>
+            <form onSubmit={e => handleSubmit(e)}>
+                <input
+                    className="currentMessage"
+                    type="text"
+                    placeholder="Type your message"
+                    value={messages.currentMessage}
+                    onChange={e => handleChange(e)}
+                />
+            </form>
+            <div className='messages' ref={containerRef}>
+                {[...new Set(messages.messages)].map((message, index) => (
+                    <div key={index} className={`chat-${message.sender}`}>
+                        <div>
+                            {message.time}
+                        </div>
+                        <div>
+                            {message.message}
+                        </div>
                     </div>
-                    <div>
-                        {message.message}
-                    </div>
-                </div>
-            ))}
-        </div>
-        <form onSubmit={e => handleSubmit(e)}>
-        <input
-            className="currentMessage"
-            type="text"
-            placeholder="Type your message"
-            value={messages.currentMessage}
-            onChange={e => handleChange(e)}
-        />
-        </form>
+                ))}
+            </div>
+        </>}
     </div>
     );
 };

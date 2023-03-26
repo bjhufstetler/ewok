@@ -1,17 +1,21 @@
 .Chat {
-    position: absolute;
-    top: 25px;
-    left: 25px;
-    display: flex;
-    flex-direction: column;
     width: 400px;
-    height: 550px;
-    
+    height: 430px;
+    border: 1px solid black;
+    background-color: rgb(86, 87, 90);
+    padding: 20px;
+    margin: 5px;
+    border-radius: 10px;
 }
 
 .messages {
-    height: 500px;
-    width: 400px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    width: 395px;
+    max-height: 330px;
+    overflow-y: auto;
+    gap: 10px;
 }
 
 .messages * {
@@ -19,28 +23,32 @@
     padding-left: 5px;
     padding-right: 5px;
     word-wrap: break-word;
-    overflow: hidden;
 }
+
+.messages :nth-child(even) {
+    text-align: right;
+}
+
 .chat-Student, .chat-Instructor {
+    min-height:fit-content;
+    width: 300px;
     border: 1px solid white;
     border-radius: 5px;
-    margin-top: 10px;
+    flex-grow: inherit;
 }
 .chat-Student {
     background-color: #393e47;
-    margin-left: 80px;
+    align-self: flex-end;
 }
 
 .chat-Instructor {
-    margin-right: 80px;
+    align-self: flex-start;
     background-color: red;
 }
 
 .currentMessage {  
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
     text-align: right;
-    width: 394px;
+    margin-top: 10px;
+    width: 390px;
     height: 40px;
 }
