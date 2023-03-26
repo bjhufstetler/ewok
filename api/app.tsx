@@ -36,8 +36,9 @@ io.on('connection', (socket) => {
         console.log(server, team)
     });
 
-    socket.on('CHAT', (props) =>{
-        console.log(props, 'here');
+    socket.on('CHAT', (props) => {
+        const room = props.server;
+        console.log(props)
         io.sockets.emit('CHAT_API', props);
     });
 

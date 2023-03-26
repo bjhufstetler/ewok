@@ -4,33 +4,33 @@ import './Chat.css';
 
 
 const Chat = () => {
-    const { socket, ewok } = useEwokContext();
+    let { socket, ewok } = useEwokContext();
     const [messages, setMessages] = useState<messages>({messages: [], currentMessage: ""});
     const [chatVisible, setChatVisible] = useState<boolean>(false);
 
     const handleChatUpdate = (update: any) => {
-        const tmpMessages = messages.messages;
-        tmpMessages.push(update.message);
-        setMessages({ messages: tmpMessages, currentMessage: "" });
+        const tmpMessages = {...messages};
+        tmpMessages.messages.push(update.message);
+        tmpMessages.currentMessage = '';
+        setMessages(tmpMessages);
         if ( chatVisible && ewok.team !== 'Instructor' && update.sender === 'Instructor' ) alert('Message')
     };
     
     useEffect(() => {
-        console.log('heard')
-        socket?.on('CHAT_API', handleChatUpdate);
+        socket.on('CHAT_API', handleChatUpdate);
     }, [socket]);
 
     const handleSubmit = (e: any) => {
-      e.preventDefault();
-      if ( messages.currentMessage === "") return;
-      const date = new Date();
-      const time = `${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}:${("0" + date.getSeconds()).slice(-2)}`;
-      const newMessage = {
-        time: time,
-        sender: ewok.team === 'Instructor' ? 'Instructor': 'Student',
-        message: messages.currentMessage
-      };
-      socket.emit('CHAT', {server: ewok.server, message: newMessage});
+        e.preventDefault();
+        if ( messages.currentMessage === "") return;
+        const date = new Date();
+        const time = `${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}:${("0" + date.getSeconds()).slice(-2)}`;
+        const newMessage = {
+            time: time,
+            sender: ewok.team === 'Instructor' ? 'Instructor': 'Student',
+            message: messages.currentMessage
+            };
+        socket.emit('CHAT', {server: ewok.server, message: newMessage});
     };
   
     const handleChange = (e: any) => {
@@ -46,8 +46,7 @@ const Chat = () => {
           left: 0,
           behavior: "smooth"
         })
-      }
-
+      };
     }, [containerRef, messages])
 
     return (
