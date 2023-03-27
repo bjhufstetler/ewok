@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Landing, StudentLogin, StudentPage, InstructorLogin, InstructorCreate, InstructorJoin, InstructorPage, Header, Help } from "./components";
+import { Landing, StudentLogin, StudentPage, InstructorLogin, InstructorCreate, InstructorJoin, InstructorPage, Header, Help, Chat } from "./components";
 import { useEquipmentContext, useEwokContext, useSatEnvContext } from "./context/EwokContext";
 import { useEffect } from 'react';
 import './App.css';

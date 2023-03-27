@@ -36,6 +36,12 @@ io.on('connection', (socket) => {
         console.log(server, team)
     });
 
+    socket.on('CHAT', (props) => {
+        const room = props.server;
+        console.log(props)
+        io.sockets.emit('CHAT_API', props);
+    });
+
     socket.on('PATCH', (table, update) => {
         if(table == 'equipment') {
             console.log(update)
