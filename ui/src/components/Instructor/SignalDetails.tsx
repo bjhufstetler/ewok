@@ -308,7 +308,6 @@ const SignalDetails = () => {
                 };
                 socket.emit('POST', 'satEnv', tmpGroupSignal);
                 setVisibleSignal(true)
-                console.log(groupSignal)
                 socket.emit('PATCH', 'equipment', {...groupSignal, active: true});
             }
         };
@@ -327,8 +326,20 @@ const SignalDetails = () => {
                     :<TbEyeOff color={!visibleSignal ? 'red' : 'white'} id={groupSignal.id.toString()} onClick={()=> handleClickSignalEyeball()}/>}
             </React.Fragment>
         )
-    }
+    };
     
+    const handleClickReset = () => {
+        socket.emit('RESET', ewok.server);
+    };
+
+    const handleClickActivate = () => {
+        socket.emit('ACTIVATE', ewok.server);
+    };
+
+    const handleClickDeactivate = () => {
+        socket.emit('DEACTIVATE', ewok.server);
+    };
+
     return(
         <>
             <div className="sidebar">
@@ -354,6 +365,9 @@ const SignalDetails = () => {
                 })}
                 <button onClick={() => handleClickSaveScenario()}>Save Scenario</button>
                 <button onClick={() => handleClickLoadScenario()}>Load Scenario</button>
+                <button onClick = {() => handleClickReset()}>RESET STUDENT EQUIPMENT</button>
+                <button onClick = {() => handleClickActivate()}>ACTIVATE ALL</button>
+                <button onClick = {() => handleClickDeactivate()}>DEACTIVATE ALL</button>
             </div>
             <div className="signalDetails">
                 <div>
