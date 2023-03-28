@@ -44,7 +44,7 @@ const Receiver = () => {
     const handleChangeCF = (e: any) => {
         const tmpEquipment = {
             ...settings,
-            cf: Number(e.target.value)
+            cf: e.target.value
         };
         setSettings(tmpEquipment);
     };
@@ -66,7 +66,9 @@ const Receiver = () => {
     };
 
     const handleClickUpdate = () => {
-        socket.emit('PATCH', 'equipment', settings)
+        if(!isNaN(settings.cf)){
+            socket.emit('PATCH', 'equipment', settings)
+        }
     }
 
     return(
@@ -86,7 +88,10 @@ const Receiver = () => {
                 </div>       
                 <div className='rxModemOutputs'>
                     <span className='label'>Frequency:</span>    
-                    <input type='text' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
+                    {isNaN(settings?.cf) ?
+                        <input className="invalid" type='text' name='cf' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
+                        : <input type='text' name='cf' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
+                    }
                     <span className='unit'>MHz</span>
                     <span className='label'>Modulation:</span>    
                     <select value={settings?.mod} onChange={e => handleChangeMod(e)}>

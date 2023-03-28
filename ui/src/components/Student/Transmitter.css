@@ -49,3 +49,6 @@
 .powerIncrementButton {
     display: flex
 }
+.invalid {
+    color: red;
+}
