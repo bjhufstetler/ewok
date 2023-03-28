@@ -135,6 +135,10 @@ const Transmitter = () => {
         setSettings(tmpSettings);
     };
 
+    const handleClickReset = () => {
+        const tmpSettings = {...tx};
+        setSettings(tmpSettings);
+    };
 
     const handleClickUpdate = () => {
         const cf = Number(settings.cf);
@@ -304,7 +308,7 @@ const Transmitter = () => {
                     <span className='label'>Power:</span>    
                     <input className={isNaN(settings?.power) || settings.power > maxPower ? "invalid" : ""} type='text' value={settings?.power} /*onKeyDown={e=>handleKeyDown(e)}*/ onChange={e => handleChangePower(e)}></input>
                     <span className='unit'>dB</span>
-                    <span></span>
+                    <button onClick={() => handleClickReset()}>Reset</button>
                     <button onClick={() => handleClickUpdate()}>Update</button>
                 </div>   
             </div>
