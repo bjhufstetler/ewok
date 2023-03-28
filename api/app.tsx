@@ -4,8 +4,7 @@
    ADDRESS ON LINE 7
 */
 
-
-const ipAddress = [ '10.11.121.140', '192.168.1.82', '10.11.87.119'];
+const ipAddress = [ '192.168.0.53', '192.168.1.82', '10.11.87.119'];
 
 var express = require("express");
 const app = express();

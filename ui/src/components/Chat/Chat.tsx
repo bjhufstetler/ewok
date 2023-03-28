@@ -9,6 +9,7 @@ const Chat = () => {
     const [chatVisible, setChatVisible] = useState<boolean>(false);
 
     const handleChatUpdate = (update: any) => {
+        if ( update.server !== ewok.server ) return;
         const tmpMessages = {...messages};
         tmpMessages.messages.push(update.message);
         tmpMessages.currentMessage = '';
