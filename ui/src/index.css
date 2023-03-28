@@ -83,29 +83,6 @@ select {
   margin: .5em;
 }
 
-.header {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  align-items: center;
-  background-color: #393e47;
-  font-size: 30px;
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.header * {
-  padding: 10px 20px 10px 20px;
-}
-
-.header :first-child {
-  text-align: left;
-}
-
-.header :last-child {
-  text-align: right;
-}
 
 .subheader {
   position: fixed;
