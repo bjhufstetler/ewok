@@ -12,7 +12,7 @@ const Header = () => {
         }
     }
     return(
-        <div className="header">
+        <div className="header" id='header'>
             <div>EWOK</div>
             <div><TbHelp onClick={() => handleClickHelp()}/></div>
         </div>

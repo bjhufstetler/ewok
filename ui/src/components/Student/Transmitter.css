@@ -45,3 +45,7 @@
 .buttonOff {
     border: 2px solid black;
 }
+
+.powerIncrementButton {
+    display: flex
+}

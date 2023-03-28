@@ -11,7 +11,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     const { satEnv } = useSatEnvContext();
 
     // Update the plot at a regular interval (0.1 second)
-    const refreshRate = 10 // hz
+    const refreshRate = 5 // hz
     const [plotTimer, setPlotTimer] = useState<boolean>(false);
     useEffect(() => {
         setTimeout(() => {
@@ -92,9 +92,9 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
         }
     };
     
-    const [markerX, setMarkerX] = useState<number>(500);
-    const initY = Array(1000).fill(-103);
-    const initYMax = Array(1000).fill(-110);
+    const [markerX, setMarkerX] = useState<number>(250);
+    const initY = Array(500).fill(-103);
+    const initYMax = Array(500).fill(-110);
     const [y, setY] = useState<any>(initY)
     const [maxY, setMaxY] = useState<any>(initYMax);
     const [max, setMax] = useState<boolean>(false);
@@ -163,8 +163,8 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
     const SpecAPlot = () => {
         //const plotTimerObserver = plotTimer;
         const plotXRange = [specA?.cf - specA?.bw / 2, specA?.cf + specA?.bw / 2];
-        const plotX : Array<number> = Array(1000).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 1000 + plotXRange[0]);
-        const plotYLimit : Array<number> = Array(1000).fill(-60);
+        const plotX : Array<number> = Array(500).fill(0).map((_, idx) => idx * (plotXRange[1] - plotXRange[0]) / 500 + plotXRange[0]);
+        const plotYLimit : Array<number> = Array(500).fill(-60);
         let plotY : Array<number> = y;
         let tmpMaxY : Array<number> = maxY;
         const antenna = equipment?.filter(x => x.unit_type === 'Antenna')[0];
