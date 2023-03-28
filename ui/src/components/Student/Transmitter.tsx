@@ -21,15 +21,17 @@ const Transmitter = () => {
     useEffect(() => {
         tmpTX = [...equipment.filter(x => x.unit_type === 'TX' && x.unit_name === modem)][0];
         setTX(tmpTX);
-    }, [equipment, modem])
+    }, [equipment]);
 
     useEffect(() => {
-        setSettings(tx)
-    }, [tx])
+        tmpTX = [...equipment.filter(x => x.unit_type === 'TX' && x.unit_name === modem)][0];
+        setTX(tmpTX);
+        setSettings(tmpTX);
+    }, [modem]);
 
     const handleClickModem = (num: string) => {
         setModem(num);    
-    }
+    };
 
     const handlePlusPowerButton = (e: any) => {
         const tmpSettings = {
