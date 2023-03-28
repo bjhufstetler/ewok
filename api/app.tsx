@@ -4,7 +4,6 @@
    ADDRESS ON LINE 7
 */
 
-
 const ipAddress = [ '10.11.121.140', '192.168.1.82', '10.11.87.119'];
 
 var express = require("express");
@@ -40,6 +39,12 @@ io.on('connection', (socket) => {
         const room = props.server;
         console.log(props)
         io.sockets.emit('CHAT_API', props);
+    });
+
+    // Socket for Finley's Clock
+    socket.on('ScenarioClock', (props) => {
+        console.log(props);
+        io.sockets.emit('ScenarioClockAPI',props);
     });
 
     socket.on('PATCH', (table, update) => {
