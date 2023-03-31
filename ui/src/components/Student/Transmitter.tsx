@@ -159,7 +159,8 @@ const Transmitter = () => {
             alert('Data rate exceeds limits.');
             return;
         } else if ( dr < minDataRate ) {
-            alert('Data rate below minimum limit.')
+            alert('Data rate below minimum limit.');
+            return;
         } else if ( power > maxPower ) {
             alert('Power exceeds limits.')
             return;
