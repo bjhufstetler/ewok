@@ -3,6 +3,7 @@ import { TbHelp } from "react-icons/tb";
 import './Header.css';
 import LocalClock from "./ClockModule/LocalClock";
 import ZuluClock from "./ClockModule/ZuluClock";
+import ScenarioClock from "./ClockModule/ScenarioClock";
 
 const Header = () => {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Header = () => {
             <div className="EWOK_Label">EWOK</div>
             <div className="LocalClock"><LocalClock /></div>
             <div className="ZuluClock"><ZuluClock /></div>
-            <div></div>
+            <div className="ScenarioClock"><ScenarioClock /></div>
             <div><TbHelp onClick={() => handleClickHelp()}/></div>
         </div>
     )

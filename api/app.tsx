@@ -118,6 +118,12 @@ io.on('connection', (socket) => {
         };
     };
 
+    socket.on('ScenarioClock', (props) => {
+        console.log(props.message);
+        socket.emit('ScenarioClockAPI',props);
+        console.log("API: Emitted the message back out.")
+    })
+
     socket.on('JOIN', (server, team) => {
         socket.join(server)
         socket.join(`${server}_${team}`)
