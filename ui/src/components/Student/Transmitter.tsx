@@ -7,7 +7,8 @@ const Transmitter = () => {
     const minFrequency = 800;
     const maxFrequency = 2200;
     const maxDataRate = 60;
-    const maxPower = -50
+    const minDataRate = 0;
+    const maxPower = -45;
 
     const { equipment } = useEquipmentContext();
     const { socket } = useEwokContext();
@@ -157,6 +158,8 @@ const Transmitter = () => {
         } else if ( dr > maxDataRate ) {
             alert('Data rate exceeds limits.');
             return;
+        } else if ( dr < minDataRate ) {
+            alert('Data rate below minimum limit.')
         } else if ( power > maxPower ) {
             alert('Power exceeds limits.')
             return;
