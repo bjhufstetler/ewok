@@ -120,7 +120,7 @@ io.on('connection', (socket) => {
 
     socket.on('ScenarioClock', (props) => {
         console.log(props.message);
-        socket.emit('ScenarioClockAPI',props);
+        io.sockets.emit('ScenarioClockAPI',props);
         console.log("API: Emitted the message back out.")
     })
 
