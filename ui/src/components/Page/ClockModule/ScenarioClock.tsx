@@ -5,28 +5,45 @@ import { useEwokContext } from "../../../context/EwokContext";
 const ScenarioClock = () => {
 
     const {socket, ewok} = useEwokContext();
+    const [isRunning, setIsRunning] = useState<boolean>(false);
 
     // This is just to show the EWOK context current details at each page for debug purposes
     console.log("Server: "+ewok.server)
     console.log("BaseURL: "+ewok.baseURL)
     console.log("Team: "+ewok.team)
 
+    // Structure of update and prop is 
+    //{
+    //    
+    //    TYPE: StartStop or ClockSet (dT calc'd locally)
+    //    If StartStop, then will have isRunning var, true if start, false if stop
+    //    If ClockSet, then will have time to set it to, then will have time
+    //    IR: true or false for is running or not
+    //    ClockSet: true or false for whether or not clock is being set
+    //    StartStop: string of "start" or "stop" to denote what to do
+    //    dT: number or something for amount to adjust zulu time by
+    //}
+
     // Handlers
     const handleClockUpdate = (update: any) => {
-        alert("The string was "+update.message);
-        console.log(update); 
+        // alert("The string was "+update.message);
+        // console.log(update); 
+        if (update.type === "StartStop") {alert('StartStop type object returned.')}
+        else if (update.type === "ClockSet") {alert('ClockSet type object returned.')}
+        else {alert('Neither type detected.')}
+
     };
     const handleSetButton = (e:any) => {
         e.preventDefault();
-        socket.emit('ScenarioClock',{message:"\"Clock Set Clicked\""});
+        socket.emit('ScenarioClock',{type:"ClockSet"});
     }
     const handleStartButton = (e:any) => {
         e.preventDefault();
-        socket.emit('ScenarioClock',{message:"\"Clock Start Clicked\""});
+        socket.emit('ScenarioClock',{type:"StartStop"});
     }
     const handleStopButton = (e:any) => {
         e.preventDefault();
-        socket.emit('ScenarioClock',{message:"\"Clock Stop Clicked\""});
+        socket.emit('ScenarioClock',{type:"StartStop"});
     }
 
     // Handle Clock Status Update
@@ -39,10 +56,13 @@ const ScenarioClock = () => {
 
 
     return (
-        <div className="ScenarioClockButtons">
-            <div className="ScenarioClockButtonSet"><button onClick={handleSetButton}>Set</button></div>
-            <div className="ScenarioClockButtonStart"><button onClick={handleStartButton}>Start</button></div>
-            <div className="ScenarioClockButtonStop"><button onClick={handleStopButton}>Stop</button></div>
+        <div>
+            <div className="ScenarioClockText">Time</div>
+            <div className="ScenarioClockButtons">
+                <div className="ScenarioClockButtonSet"><button onClick={handleSetButton}>Set</button></div>
+                <div className="ScenarioClockButtonStart"><button onClick={handleStartButton}>Start</button></div>
+                <div className="ScenarioClockButtonStop"><button onClick={handleStopButton}>Stop</button></div>
+            </div>
         </div>
     )
 }
