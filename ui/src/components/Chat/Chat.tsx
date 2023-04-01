@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useEwokContext } from '../../context/EwokContext';
 import './Chat.css';
 
+let typedMessage:string[] = [] //stores the message that is being typed 
+let queuedMessage = false //state changed if there is a message being typed out
+
 
 const Chat = () => {
     let { socket, ewok } = useEwokContext();
@@ -12,7 +15,21 @@ const Chat = () => {
         if ( update.server !== ewok.server ) return;
         const tmpMessages = {...messages};
         tmpMessages.messages.push(update.message);
-        tmpMessages.currentMessage = '';
+        if (typedMessage.length != 0) queuedMessage = true
+        if (socket.id === update.id){
+            tmpMessages.currentMessage = ''
+            typedMessage = []
+        }
+        else {
+            if (!queuedMessage) {
+                tmpMessages.currentMessage = ''
+                queuedMessage = false
+            }
+            else {
+                tmpMessages.currentMessage = typedMessage[typedMessage.length - 1];
+                queuedMessage = true
+            }
+        }
         setMessages(tmpMessages);
         if ( chatVisible && ewok.team !== 'Instructor' && update.sender === 'Instructor' ) alert('Message')
     };
@@ -31,10 +48,11 @@ const Chat = () => {
             sender: ewok.team === 'Instructor' ? 'Instructor': 'Student',
             message: messages.currentMessage
             };
-        socket.emit('CHAT', {server: ewok.server, message: newMessage});
+        socket.emit('CHAT', {server: ewok.server, message: newMessage, id: socket.id});
     };
   
     const handleChange = (e: any) => {
+      typedMessage.push(e.target.value);
       setMessages({ ...messages, currentMessage: e.target.value });
     };
 
