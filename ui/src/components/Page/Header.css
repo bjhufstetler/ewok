@@ -20,6 +20,19 @@
     font-size: 36px;
 }
 
+.ScenarioClockButtons {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+}
+
+.ScenarioClockButtonStart, .ScenarioClockButtonStop, .ScenarioClockButtonSet {
+    font-size: 20px;
+    text-align: center;
+    border: none;
+    display: inline-block;
+}
+
+
 
 .ZuluClock {
     justify-content: center;
@@ -31,6 +44,7 @@
     align-content: center;
     font-size: 22px;
 }
+
 /* .ScenarioClock {
     justify-content: center;
     align-content: center;

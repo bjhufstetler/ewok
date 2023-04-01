@@ -16,10 +16,17 @@ const ScenarioClock = () => {
         alert("The string was "+update.message);
         console.log(update); 
     };
-
-    const handleClockButton = (e:any) => {
+    const handleSetButton = (e:any) => {
         e.preventDefault();
-        socket.emit('ScenarioClock',{message:"\"How many times will it show?\""});
+        socket.emit('ScenarioClock',{message:"\"Clock Set Clicked\""});
+    }
+    const handleStartButton = (e:any) => {
+        e.preventDefault();
+        socket.emit('ScenarioClock',{message:"\"Clock Start Clicked\""});
+    }
+    const handleStopButton = (e:any) => {
+        e.preventDefault();
+        socket.emit('ScenarioClock',{message:"\"Clock Stop Clicked\""});
     }
 
     // Handle Clock Status Update
@@ -32,7 +39,11 @@ const ScenarioClock = () => {
 
 
     return (
-        <div><button onClick={handleClockButton}>Test</button></div>
+        <div className="ScenarioClockButtons">
+            <div className="ScenarioClockButtonSet"><button onClick={handleSetButton}>Set</button></div>
+            <div className="ScenarioClockButtonStart"><button onClick={handleStartButton}>Start</button></div>
+            <div className="ScenarioClockButtonStop"><button onClick={handleStopButton}>Stop</button></div>
+        </div>
     )
 }
 
