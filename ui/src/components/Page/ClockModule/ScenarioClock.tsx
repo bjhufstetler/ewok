@@ -28,7 +28,11 @@ const ScenarioClock = () => {
     const handleClockUpdate = (update: any) => {
         // alert("The string was "+update.message);
         // console.log(update); 
-        if (update.type === "StartStop") {alert('StartStop type object returned.')}
+        if (update.type === "StartStop") {
+            //alert('StartStop type object returned.');
+            if (update.runningBool) {setIsRunning(true)}
+            else if (!update.runningBool) {setIsRunning(false)}
+        }
         else if (update.type === "ClockSet") {alert('ClockSet type object returned.')}
         else {alert('Neither type detected.')}
 
@@ -39,11 +43,11 @@ const ScenarioClock = () => {
     }
     const handleStartButton = (e:any) => {
         e.preventDefault();
-        socket.emit('ScenarioClock',{type:"StartStop"});
+        socket.emit('ScenarioClock',{type:"StartStop",runningBool:true});
     }
     const handleStopButton = (e:any) => {
         e.preventDefault();
-        socket.emit('ScenarioClock',{type:"StartStop"});
+        socket.emit('ScenarioClock',{type:"StartStop",runningBool:false});
     }
 
     // Handle Clock Status Update
@@ -54,17 +58,25 @@ const ScenarioClock = () => {
         } // This was returning the alert case twice, so adding socket.off as seen solved the problem
     }, [socket]);
 
-
-    return (
-        <div>
-            <div className="ScenarioClockText">Time</div>
-            <div className="ScenarioClockButtons">
-                <div className="ScenarioClockButtonSet"><button onClick={handleSetButton}>Set</button></div>
-                <div className="ScenarioClockButtonStart"><button onClick={handleStartButton}>Start</button></div>
-                <div className="ScenarioClockButtonStop"><button onClick={handleStopButton}>Stop</button></div>
+    if (ewok.team === "Instructor") {
+        return (
+            <div>
+                <div className="ScenarioClockText">Running: {isRunning.toString()}</div>
+                <div className="ScenarioClockButtons">
+                    <div className="ScenarioClockButtonSet"><button onClick={handleSetButton}>Set</button></div>
+                    <div className="ScenarioClockButtonStart"><button onClick={handleStartButton}>Start</button></div>
+                    <div className="ScenarioClockButtonStop"><button onClick={handleStopButton}>Stop</button></div>
+                </div>
             </div>
-        </div>
-    )
+        )
+    }
+    else {
+        return (
+            <div>
+                <div className="ScenarioClockText">Running: {isRunning.toString()}</div>
+            </div>
+        )
+    }
 }
 
 export default ScenarioClock;
