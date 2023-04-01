@@ -280,7 +280,7 @@ const SpecA = ({ unit_name } : { unit_name: string}) => {
                                 yaxis: { title: 'dB', color: 'white', fixedrange : true, range: [specA?.lb, specA?.ub]},
                                 font: { color: 'white'}, legend: { y: 0 },
                                 modebar: {remove: ["autoScale2d", 'zoom2d', 'zoomIn2d', 'zoomOut2d', 'pan2d', 'resetScale2d', 'toImage']},
-                                dragmode: 'select',
+                                dragmode: false,
                                 showlegend: false,
                                 annotations: [
                                     {
