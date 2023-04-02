@@ -7,7 +7,7 @@
     background-color: #393e47;
     font-size: 30px;
     display:grid;
-    grid-template-columns: 1fr 3fr 3fr 5fr 1fr;
+    grid-template-columns: 1fr 3fr 3fr 3fr 1fr;
   }
   
 
