@@ -75,11 +75,12 @@ const ScenarioClock = () => {
         // Hides Edit display, gives error message if clock is running, and
         // sends new scenario time to other users
 
-        setEditTimeShow(false);
+        
         if (isRunning) {
             alert('You must have the scenario clock stopped in order to change the scenario time.');
             return;
         }
+        setEditTimeShow(false);
         socket.emit('ScenarioClock',{type:"ClockSet",emitTimeSet:tmpScenTime});
     }
 
