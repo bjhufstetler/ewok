@@ -15,6 +15,8 @@ const ScenarioClock = () => {
     const [isRunning, setIsRunning] = useState<boolean>(false);
     const [scenarioTime, setScenarioTime] = useState(time);
     const [editTimeShow, setEditTimeShow] = useState<boolean>(false);
+    const [tmpScenTime, setTmpScenTime] = useState({HH:0,mm:0,ss:0});
+    const [deltaT, setDeltaT] = useState(0);
 
     // This is just to show the EWOK context current details at each page for debug purposes
     console.log("Server: "+ewok.server)
@@ -54,6 +56,44 @@ const ScenarioClock = () => {
     const handleStartStopButton = (e:any) => {
         e.preventDefault();
         socket.emit('ScenarioClock',{type:"StartStop",runningBool:!isRunning});
+    }
+
+    // Handle time inputs
+    const handleHHChange = (e:any) => {
+        let input = parseInt(e.target.value);
+        if (!isNaN(input)) {
+            if (input >= 0 && input < 24) {
+                const tmpClock = {
+                    ...tmpScenTime,
+                    HH: input
+                }
+                setTmpScenTime(tmpClock);
+            }
+        }     
+    }
+    const handlemmChange = (e:any) => {
+        let input = parseInt(e.target.value);
+        if (!isNaN(input)) {
+            if (input >= 0 && input < 60) {
+                const tmpClock = {
+                    ...tmpScenTime,
+                    mm: input
+                }
+                setTmpScenTime(tmpClock);
+            }
+        }     
+    }
+    const handlessChange = (e:any) => {
+        let input = parseInt(e.target.value);
+        if (!isNaN(input)) {
+            if (input >= 0 && input < 60) {
+                const tmpClock = {
+                    ...tmpScenTime,
+                    ss: input
+                }
+                setTmpScenTime(tmpClock);
+            }
+        }     
     }
 
     // Handle Clock Status Update
