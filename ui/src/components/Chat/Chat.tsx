@@ -1,42 +1,87 @@
 import { useState, useEffect, useRef } from 'react';
 import { useEwokContext } from '../../context/EwokContext';
 import './Chat.css';
+import { loadavg } from 'os';
 
 
 const Chat = () => {
     let { socket, ewok } = useEwokContext();
     const [messages, setMessages] = useState<messages>({messages: [], currentMessage: ""});
     const [chatVisible, setChatVisible] = useState<boolean>(false);
+    const userType = ewok.team === 'Instructor' ? 'Instructor': 'Student';
+    var currentLocal = '';
 
     const handleChatUpdate = (update: any) => {
-        if ( update.server !== ewok.server ) return;
+        
+
+        var localMessage = ''; 
+        var tmpLocal = localStorage.getItem(userType);
+        
+        if(tmpLocal !== null){
+            localMessage = tmpLocal;
+        }
+
+        //check to see if update cleared current chat
+        if (currentLocal !== '' && userType !== update.message.sender){
+            localMessage = currentLocal;
+            localStorage.setItem(userType, currentLocal);
+        }
+
+        if ( update.server !== ewok.server) return;
         const tmpMessages = {...messages};
         tmpMessages.messages.push(update.message);
-        tmpMessages.currentMessage = '';
+        tmpMessages.currentMessage = messages.currentMessage;
+        
+        // console.log(localMessage);
+        // console.log(update.message.sender);
+        // console.log(userType);
+
+        if(userType !== update.message.sender){
+            tmpMessages.currentMessage = localMessage;
+            currentLocal = localMessage;
+        }
+        else{
+            tmpMessages.currentMessage = '';
+            localStorage.clear();
+            currentLocal = '';
+        }
+
         setMessages(tmpMessages);
+
+        
+
         if ( chatVisible && ewok.team !== 'Instructor' && update.sender === 'Instructor' ) alert('Message')
     };
     
-    useEffect(() => {
+    useEffect(() => {  
         socket.on('CHAT_API', handleChatUpdate);
     }, [socket]);
 
+    
+
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        if ( messages.currentMessage === "") return;
+        if ( messages.currentMessage == "") return;
         const date = new Date();
         const time = `${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}:${("0" + date.getSeconds()).slice(-2)}`;
         const newMessage = {
             time: time,
             sender: ewok.team === 'Instructor' ? 'Instructor': 'Student',
             message: messages.currentMessage
+            
             };
+        
         socket.emit('CHAT', {server: ewok.server, message: newMessage});
-    };
+    }; 
   
     const handleChange = (e: any) => {
-      setMessages({ ...messages, currentMessage: e.target.value });
+        
+        var localMessage = e.target.value;
+        localStorage.setItem(userType, localMessage);
+        setMessages({ ...messages, currentMessage: e.target.value });
     };
+
+
 
     const containerRef = useRef<any>(null)
     useEffect(() => {
@@ -54,8 +99,8 @@ const Chat = () => {
         <div className='Chat'>
         <button onClick={() => setChatVisible(!chatVisible)}>Show/Hide Chat</button>
         {chatVisible && <>
-            <form onSubmit={e => handleSubmit(e)}>
-                <input
+            <form id="chatSubmit" onSubmit={e => handleSubmit(e)}>
+                <input 
                     className="currentMessage"
                     type="text"
                     placeholder="Type your message"
