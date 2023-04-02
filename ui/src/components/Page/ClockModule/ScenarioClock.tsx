@@ -3,62 +3,84 @@ import { useState, useEffect } from 'react';
 import { useEwokContext } from "../../../context/EwokContext";
 import './ScenarioClock.css';
 
-// TODO: Find a way to get around the async nature of use State such that the correct boolean will emit on start/stop
-
-
 
 const ScenarioClock = () => {
-    let time = new Date().toUTCString();
+    let time = new Date();
     let intervalID:any;
 
-    const {socket, ewok} = useEwokContext();
-    const [isRunning, setIsRunning] = useState<boolean>(false);
-    const [scenarioTime, setScenarioTime] = useState(time);
-    const [editTimeShow, setEditTimeShow] = useState<boolean>(false);
-    const [tmpScenTime, setTmpScenTime] = useState({HH:0,MM:0,SS:0});
-    const [deltaT, setDeltaT] = useState(0);
-    const [hhInputBad, setHHInputBad] = useState<boolean>(false);
-    const [mmInputBad, setMMInputBad] = useState<boolean>(false);
-    const [ssInputBad, setSSInputBad] = useState<boolean>(false);
-
-    // This is just to show the EWOK context current details at each page for debug purposes
-    console.log("Server: "+ewok.server)
-    console.log("BaseURL: "+ewok.baseURL)
-    console.log("Team: "+ewok.team)
-
-    // Edit Popup Form
-    const TimeSetForm = () => {
-        return (
-            <div className="timeInput">
-                <div className="TIBox">
-                    <input type="text" placeholder="HH" onInput={e => handleHHChange(e)} className={hhInputBad ? "BadTimeInput" : ""}></input>:
-                    <input type="text" placeholder="MM" onChange={e => handleMMChange(e)} className={mmInputBad ? "BadTimeInput" : ""}></input>:
-                    <input type="text" placeholder="SS" onChange={e => handleSSChange(e)} className={ssInputBad ? "BadTimeInput" : ""}></input>
-                </div>
-                <div className="SetButton">
-                    <button onClick={handleSetButton}>Set</button>
-                </div>
-            </div>
-        );
-    }
-
-    // Handlers
+    const {socket, ewok}                    = useEwokContext();
+    const [isRunning, setIsRunning]         = useState<boolean>(false);
+    const [editTimeShow, setEditTimeShow]   = useState<boolean>(false);
+    const [hhInputBad, setHHInputBad]       = useState<boolean>(false);
+    const [mmInputBad, setMMInputBad]       = useState<boolean>(false);
+    const [ssInputBad, setSSInputBad]       = useState<boolean>(false);
+    const [scenarioTime, setScenarioTime]   = useState(time);
+    const [tmpScenTime, setTmpScenTime]     = useState({HH:0,MM:0,SS:0});       
+    const [deltaT, setDeltaT]               = useState({HH:0,MM:0,SS:0});              
+    
+    
     const handleClockUpdate = (update: any) => {
-        if (update.type === "StartStop") {setIsRunning(update.runningBool)}
-        else if (update.type === "ClockSet") {alert('ClockSet type object returned.')}
-        else {alert('Neither type detected.')}
+        // Parses out any messages sent over the socket
+        // Necessary because instructor and student clocks are the same component
+
+        if (update.type === "StartStop") {
+            setIsRunning(update.runningBool);
+            setDeltaT(update.timeDeltaT);
+        }
+        else if (update.type === "ClockSet") {
+            let newDate = new Date();
+            newDate.setHours(update.emitTimeSet.HH);
+            newDate.setMinutes(update.emitTimeSet.MM);
+            newDate.setSeconds(update.emitTimeSet.SS);
+            setScenarioTime(newDate);
+        }
+        else {alert("Socket Transmit format not accepted.")}
     };
+
+    const updateTime = () => {
+        // Sets Scenario Time, serves to change the clock each second in accordance
+        // with the most recent deltaT sent over the socket
+
+        let time = new Date();
+        time.setHours(time.getHours()-deltaT.HH);
+        time.setMinutes(time.getMinutes()-deltaT.MM);
+        time.setSeconds(time.getSeconds()-deltaT.SS);
+        setScenarioTime(time);
+    };
+
     const handleEditButton = (e:any) => {
+        // "Opens" the Edit display
+
         e.preventDefault();
         setEditTimeShow(!editTimeShow)
     }
-    const handleSetButton = () => {
-        setEditTimeShow(false);
-        socket.emit('ScenarioClock',{type:"ClockSet"});
-    }
+
     const handleStartStopButton = (e:any) => {
+        // Transmits a new DeltaT value each time Start is pressed so that the 
+        // displayed clock does not reset based on new date calculation
+
         e.preventDefault();
-        socket.emit('ScenarioClock',{type:"StartStop",runningBool:!isRunning});
+        let tmpDelT = {HH:0, MM:0, SS:0};
+        if (!isRunning) {
+            // Calculate and Set a delta T
+            let tmpHH = new Date().getHours();
+            let tmpMM = new Date().getMinutes();
+            let tmpSS = new Date().getSeconds();
+            tmpDelT = {HH: tmpHH - tmpScenTime.HH, MM: tmpMM - tmpScenTime.MM, SS: tmpSS - tmpScenTime.SS}
+        }
+        socket.emit('ScenarioClock',{type:"StartStop", runningBool:!isRunning, timeDeltaT: tmpDelT});
+    }
+
+    const handleSetButton = () => {
+        // Hides Edit display, gives error message if clock is running, and
+        // sends new scenario time to other users
+
+        setEditTimeShow(false);
+        if (isRunning) {
+            alert('You must have the scenario clock stopped in order to change the scenario time.');
+            return;
+        }
+        socket.emit('ScenarioClock',{type:"ClockSet",emitTimeSet:tmpScenTime});
     }
 
     // Handle time inputs
@@ -102,29 +124,60 @@ const ScenarioClock = () => {
         } else {setSSInputBad(true)}
     }
 
-    // Handle Clock Status Update
+    // Handle Socket Pings
     useEffect(() => {
+        // Listens for any changes over the socket then sends messages to
+        // handleClockUpdate above in order to be parsed
+
         socket.on('ScenarioClockAPI', handleClockUpdate);
         return () => {
             socket.off('ScenarioClockAPI').off();
-        } // This was returning the alert case twice, so adding socket.off as seen solved the problem
+        }
     }, [socket]);
 
-    // Handle Clock Display increments
-    const updateTime = () => {
-        let time = new Date().toUTCString();
-        setScenarioTime(time);
-    };
     useEffect(()=> {
+        // Updates the clock once a second using the updateTime function above, 
+        // or stops it if isRunning is made False via clicking Stop
+
         if (isRunning) {intervalID = setInterval(updateTime, 1000/*ms*/);}
         return () => clearInterval(intervalID);
     },[isRunning])
 
-    // /Scenario Time: {scenarioTime.substring(17,25)}
+
+
+    // Edit Display
+    const TimeSetForm = () => {
+        return (
+            <div className="timeInput">
+                <div className="TIBox">
+                    <input type="text" 
+                        placeholder="HH" 
+                        onInput={e => handleHHChange(e)} 
+                        className={hhInputBad ? "BadTimeInput" : ""}>
+                    </input> : 
+                    <input type="text" 
+                        placeholder="MM" 
+                        onChange={e => handleMMChange(e)} 
+                        className={mmInputBad ? "BadTimeInput" : ""}>
+                    </input> : 
+                    <input type="text" 
+                        placeholder="SS" 
+                        onChange={e => handleSSChange(e)} 
+                        className={ssInputBad ? "BadTimeInput" : ""}>
+                    </input>
+                </div>
+                <div className="SetButton">
+                    <button onClick={handleSetButton}>Set</button>
+                </div>
+            </div>
+        );
+    }
+
+    // Show one version for anyone logged in as instructor
     if (ewok.team === "Instructor") {
         return (
             <div className="ScenarioClock">
-                <div className="ScenarioClockTime">{JSON.stringify(tmpScenTime)}</div>
+                <div className="ScenarioClockTime">Scenario Time: {scenarioTime.toString().substring(16,25)}</div>
                 <div className="ScenarioClockButtons">
                     <div className="ScenarioClockButtonSet"><button onClick={handleEditButton}>Edit</button></div>
                     <div className="ScenarioClockButtonStartStop"><button onClick={handleStartStopButton}>{ isRunning ? 'Stop' : 'Start' }</button></div>
@@ -134,10 +187,10 @@ const ScenarioClock = () => {
         )
     }
     
+    // Show only the scenario time for anyone not logged in as the instructor
     else {
         return (
-            <div className="ScenarioClock">Scenario Time: {scenarioTime.substring(17,25)}</div>
-            
+            <div className="ScenarioClock">Scenario Time: {scenarioTime.toString().substring(16,25)}</div>
         )
     }
 }
