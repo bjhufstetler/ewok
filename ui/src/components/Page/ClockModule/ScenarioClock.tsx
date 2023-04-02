@@ -177,7 +177,7 @@ const ScenarioClock = () => {
     if (ewok.team === "Instructor") {
         return (
             <div className="ScenarioClock">
-                <div className="ScenarioClockTime">Scenario Time: {scenarioTime.toString().substring(16,25)}</div>
+                <div className="ScenarioClockTime">Scenario: {scenarioTime.toString().substring(16,25)}</div>
                 <div className="ScenarioClockButtons">
                     <div className="ScenarioClockButtonSet"><button onClick={handleEditButton}>Edit</button></div>
                     <div className="ScenarioClockButtonStartStop"><button onClick={handleStartStopButton}>{ isRunning ? 'Stop' : 'Start' }</button></div>
@@ -190,7 +190,7 @@ const ScenarioClock = () => {
     // Show only the scenario time for anyone not logged in as the instructor
     else {
         return (
-            <div className="ScenarioClock">Scenario Time: {scenarioTime.toString().substring(16,25)}</div>
+            <div className="ScenarioClock">Scenario: {scenarioTime.toString().substring(16,25)}</div>
         )
     }
 }
