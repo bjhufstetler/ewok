@@ -1,0 +1,53 @@
+.ScenarioClock {
+    display:inline-flex;
+    flex-wrap:nowrap;
+    font-size:22px;
+    justify-content: center;
+
+}
+
+.ScenarioClockButtons {
+    display: inline-flex;
+    font-size: 20px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.ScenarioClockButtonSet {
+    padding-right: 0px;
+}
+.ScenarioClockButtonStartStop {
+    padding-left: 0px;
+}
+.ScenarioClockButtons * {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+
+.ScenarioClockTime {
+    display:flex;
+    font-size: 22px;
+    padding-top: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+}
+
+.timeInput {
+    padding-left: 5px;
+    padding-right: 5px;
+    display: inline-flex;
+    font-size: 20px;
+}
+
+.TIBox {
+    display: inline-flex;
+    padding-right: 12px;
+    padding-top: 0.5em;
+}
+.TIBox * {
+    width: 40px;
+    height: 28px;
+    font-size: 20px;
+}
