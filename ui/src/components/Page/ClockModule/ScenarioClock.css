@@ -51,3 +51,7 @@
     height: 28px;
     font-size: 20px;
 }
+.BadTimeInput {
+    color: red;
+    caret-color: white;
+}

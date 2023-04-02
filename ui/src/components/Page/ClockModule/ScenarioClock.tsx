@@ -15,8 +15,11 @@ const ScenarioClock = () => {
     const [isRunning, setIsRunning] = useState<boolean>(false);
     const [scenarioTime, setScenarioTime] = useState(time);
     const [editTimeShow, setEditTimeShow] = useState<boolean>(false);
-    const [tmpScenTime, setTmpScenTime] = useState({HH:0,mm:0,ss:0});
+    const [tmpScenTime, setTmpScenTime] = useState({HH:0,MM:0,SS:0});
     const [deltaT, setDeltaT] = useState(0);
+    const [hhInputBad, setHHInputBad] = useState<boolean>(false);
+    const [mmInputBad, setMMInputBad] = useState<boolean>(false);
+    const [ssInputBad, setSSInputBad] = useState<boolean>(false);
 
     // This is just to show the EWOK context current details at each page for debug purposes
     console.log("Server: "+ewok.server)
@@ -28,9 +31,9 @@ const ScenarioClock = () => {
         return (
             <div className="timeInput">
                 <div className="TIBox">
-                    <input placeholder="HH"></input>:
-                    <input placeholder="MM"></input>:
-                    <input placeholder="SS"></input>
+                    <input type="text" placeholder="HH" onInput={e => handleHHChange(e)} className={hhInputBad ? "BadTimeInput" : ""}></input>:
+                    <input type="text" placeholder="MM" onChange={e => handleMMChange(e)} className={mmInputBad ? "BadTimeInput" : ""}></input>:
+                    <input type="text" placeholder="SS" onChange={e => handleSSChange(e)} className={ssInputBad ? "BadTimeInput" : ""}></input>
                 </div>
                 <div className="SetButton">
                     <button onClick={handleSetButton}>Set</button>
@@ -68,32 +71,35 @@ const ScenarioClock = () => {
                     HH: input
                 }
                 setTmpScenTime(tmpClock);
-            }
-        }     
+                setHHInputBad(false);
+            } else {setHHInputBad(true)}
+        } else {setHHInputBad(true)}  
     }
-    const handlemmChange = (e:any) => {
+    const handleMMChange = (e:any) => {
         let input = parseInt(e.target.value);
         if (!isNaN(input)) {
             if (input >= 0 && input < 60) {
                 const tmpClock = {
                     ...tmpScenTime,
-                    mm: input
+                    MM: input
                 }
                 setTmpScenTime(tmpClock);
-            }
-        }     
+                setMMInputBad(false);
+            } else {setMMInputBad(true)}
+        } else {setMMInputBad(true)} 
     }
-    const handlessChange = (e:any) => {
+    const handleSSChange = (e:any) => {
         let input = parseInt(e.target.value);
         if (!isNaN(input)) {
             if (input >= 0 && input < 60) {
                 const tmpClock = {
                     ...tmpScenTime,
-                    ss: input
+                    SS: input
                 }
                 setTmpScenTime(tmpClock);
-            }
-        }     
+                setSSInputBad(false);
+            } else {setSSInputBad(true)}
+        } else {setSSInputBad(true)}
     }
 
     // Handle Clock Status Update
@@ -114,15 +120,16 @@ const ScenarioClock = () => {
         return () => clearInterval(intervalID);
     },[isRunning])
 
+    // /Scenario Time: {scenarioTime.substring(17,25)}
     if (ewok.team === "Instructor") {
         return (
             <div className="ScenarioClock">
-                <div className="ScenarioClockTime">Scenario Time: {scenarioTime.substring(17,25)}</div>
+                <div className="ScenarioClockTime">{JSON.stringify(tmpScenTime)}</div>
                 <div className="ScenarioClockButtons">
                     <div className="ScenarioClockButtonSet"><button onClick={handleEditButton}>Edit</button></div>
                     <div className="ScenarioClockButtonStartStop"><button onClick={handleStartStopButton}>{ isRunning ? 'Stop' : 'Start' }</button></div>
                 </div>
-                {editTimeShow ? <TimeSetForm /> : null}
+                {editTimeShow ? TimeSetForm() : null}
             </div>
         )
     }
