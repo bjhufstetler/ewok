@@ -9,6 +9,7 @@ import '../Header.css';
 
 const ScenarioClock = () => {
     let time = new Date().toUTCString();
+    let intervalID:any;
 
     const {socket, ewok} = useEwokContext();
     const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -19,31 +20,13 @@ const ScenarioClock = () => {
     console.log("BaseURL: "+ewok.baseURL)
     console.log("Team: "+ewok.team)
 
-    // Structure of update and prop is 
-    //{
-    //    
-    //    TYPE: StartStop or ClockSet (dT calc'd locally)
-    //    If StartStop, then will have isRunning var, true if start, false if stop
-    //    If ClockSet, then will have time to set it to, then will have time
-    //}
-
     // Handlers
     const handleClockUpdate = (update: any) => {
-        // alert("The string was "+update.message);
-        // console.log(update); 
-        if (update.type === "StartStop") {
-            setIsRunning(update.runningBool);
-            alert('Setting isRunning to '+update.runningBool.toString())
-        }
+        if (update.type === "StartStop") {setIsRunning(update.runningBool);}
         else if (update.type === "ClockSet") {alert('ClockSet type object returned.')}
         else {alert('Neither type detected.')}
-
     };
-    const updateTime = () => {
-        let time = new Date().toUTCString();
-        setScenarioTime(time);
-    };
-    const handleSetButton = (e:any) => {
+    const handleEditButton = (e:any) => {
         e.preventDefault();
         socket.emit('ScenarioClock',{type:"ClockSet"});
     }
@@ -51,10 +34,6 @@ const ScenarioClock = () => {
         e.preventDefault();
         socket.emit('ScenarioClock',{type:"StartStop",runningBool:!isRunning});
     }
-    // const handleStopButton = (e:any) => {
-    //     e.preventDefault();
-    //     socket.emit('ScenarioClock',{type:"StartStop",runningBool:false});
-    // }
 
     // Handle Clock Status Update
     useEffect(() => {
@@ -65,14 +44,13 @@ const ScenarioClock = () => {
     }, [socket]);
 
     // Handle Clock Display increments
+    const updateTime = () => {
+        let time = new Date().toUTCString();
+        setScenarioTime(time);
+    };
     useEffect(()=> {
-        let inte:any;
-        if (isRunning) {
-            inte = setInterval(updateTime, 1000/*ms*/);
-        }
-        else if (!isRunning) {
-            return clearInterval(inte);
-        }
+        if (isRunning) {intervalID = setInterval(updateTime, 1000/*ms*/);}
+        return () => clearInterval(intervalID);
     },[isRunning])
 
     if (ewok.team === "Instructor") {
@@ -80,7 +58,7 @@ const ScenarioClock = () => {
             <div className="ScenarioClock">
                 <div className="ScenarioClockTime">Scenario Time: {scenarioTime.substring(17,25)} {isRunning.toString()}</div>
                 <div className="ScenarioClockButtons">
-                    <div className="ScenarioClockButtonSet"><button onClick={handleSetButton}>Set</button></div>
+                    <div className="ScenarioClockButtonSet"><button onClick={handleEditButton}>Set</button></div>
                     <div className="ScenarioClockButtonStartStop"><button onClick={handleStartStopButton}>{ isRunning ? 'Stop' : 'Start' }</button></div>
                 </div>
             </div>
