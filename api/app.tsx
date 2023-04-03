@@ -4,7 +4,7 @@
    ADDRESS ON LINE 7
 */
 
-const ipAddress = [ '192.168.0.53', '192.168.1.82', '10.11.87.119'];
+const ipAddress = [ '192.168.0.53', '192.168.1.82', '10.11.105.156'];
 
 var express = require("express");
 const app = express();
@@ -121,7 +121,6 @@ io.on('connection', (socket) => {
     socket.on('ScenarioClock', (props) => {
         console.log(props.message);
         io.sockets.emit('ScenarioClockAPI',props);
-        console.log("API: Emitted the message back out.")
     })
 
     socket.on('JOIN', (server, team) => {
