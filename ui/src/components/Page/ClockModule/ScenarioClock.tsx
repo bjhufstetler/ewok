@@ -46,6 +46,7 @@ const ScenarioClock = () => {
         time.setMinutes(time.getMinutes()-deltaT.MM);
         time.setSeconds(time.getSeconds()-deltaT.SS);
         setScenarioTime(time);
+        setTmpScenTime({HH:time.getHours(), MM:time.getMinutes(), SS: time.getSeconds()})
     };
 
     const handleEditButton = (e:any) => {
@@ -69,6 +70,7 @@ const ScenarioClock = () => {
             tmpDelT = {HH: tmpHH - tmpScenTime.HH, MM: tmpMM - tmpScenTime.MM, SS: tmpSS - tmpScenTime.SS}
         }
         socket.emit('ScenarioClock',{type:"StartStop", runningBool:!isRunning, timeDeltaT: tmpDelT});
+        console.log('Generated new DelT'+JSON.stringify(tmpDelT))
     }
 
     const handleSetButton = () => {
