@@ -1,0 +1,32 @@
+.header {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 70px;
+    align-items: center;
+    background-color: #393e47;
+    font-size: 30px;
+    display:grid;
+    grid-template-columns: 1fr 3fr 3fr 3fr 1fr;
+  }
+  
+
+.EWOK_Label {
+    font-size: 22px;
+    padding: 10px 20px 10px 20px;
+}
+
+
+.ZuluClock {
+    justify-content: center;
+    align-content: center;
+    font-size: 22px;
+    padding: 10px 24px 10px 24px;
+}
+.LocalClock {
+    justify-content: center;
+    align-content: center;
+    font-size: 22px;
+    padding: 10px 24px 10px 24px;
+}

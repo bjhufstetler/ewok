@@ -1,5 +1,10 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { TbHelp } from "react-icons/tb";
+import './Header.css';
+import LocalClock from "./ClockModule/LocalClock";
+import ZuluClock from "./ClockModule/ZuluClock";
+import ScenarioClock from "./ClockModule/ScenarioClock";
+
 const Header = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -13,7 +18,10 @@ const Header = () => {
     }
     return(
         <div className="header" id='header'>
-            <div>EWOK</div>
+            <div className="EWOK_Label">EWOK</div>
+            <div className="LocalClock"><LocalClock /></div>
+            <div className="ZuluClock"><ZuluClock /></div>
+            <div className="ScenarioClock"><ScenarioClock /></div>
             <div><TbHelp onClick={() => handleClickHelp()}/></div>
         </div>
     )
