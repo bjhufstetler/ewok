@@ -8,7 +8,7 @@ const InstructorCreate = () => {
     const makeServer:Function = () => {
         var result : string = '';
         var characters : string = 'ABCDEFGHJKMNOPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz023456789';
-        for ( var i = 0; i < 4; i++ ) result += characters.charAt(Math.floor(Math.random() * 62));
+        for ( var i = 0; i < 4; i++ ) result += characters.charAt(Math.floor(Math.random() * 57));
         return result;
     };
 
