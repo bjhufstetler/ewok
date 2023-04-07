@@ -119,7 +119,6 @@ io.on('connection', (socket) => {
     };
 
     socket.on('ScenarioClock', (props) => {
-        console.log(props.message);
         io.sockets.emit('ScenarioClockAPI',props);
     })
 
