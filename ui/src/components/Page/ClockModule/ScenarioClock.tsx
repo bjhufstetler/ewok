@@ -77,13 +77,13 @@ const ScenarioClock = () => {
         // Hides Edit display, gives error message if clock is running, and
         // sends new scenario time to other users
 
-        
         if (isRunning) {
             alert('You must have the scenario clock stopped in order to change the scenario time.');
             return;
         }
         setEditTimeShow(false);
-        socket.emit('ScenarioClock',{type:"ClockSet",emitTimeSet:tmpScenTime});
+        setTmpScenTime({...tmpScenTime, SS:0})
+        socket.emit('ScenarioClock',{type:"ClockSet",emitTimeSet:{...tmpScenTime,SS:0}});
     }
 
     // Handle time inputs
@@ -162,12 +162,12 @@ const ScenarioClock = () => {
                         placeholder="MM" 
                         onChange={e => handleMMChange(e)} 
                         className={mmInputBad ? "BadTimeInput" : ""}>
-                    </input> : 
+                    </input> {/*}: 
                     <input type="text" 
                         placeholder="SS" 
                         onChange={e => handleSSChange(e)} 
                         className={ssInputBad ? "BadTimeInput" : ""}>
-                    </input>
+                    </input>*/}
                 </div>
                 <div className="SetButton">
                     <button onClick={handleSetButton}>Set</button>
