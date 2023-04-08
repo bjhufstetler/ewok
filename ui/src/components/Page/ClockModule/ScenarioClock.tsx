@@ -7,15 +7,16 @@ import './ScenarioClock.css';
 const ScenarioClock = () => {
     let time = new Date();
     let intervalID:any;
+    let pingInterval:any;
+    let tmpDelT = {HH:0,MM:0,SS:0}
 
     const {socket, ewok}                    = useEwokContext();
     const [isRunning, setIsRunning]         = useState<boolean>(false);
     const [editTimeShow, setEditTimeShow]   = useState<boolean>(false);
     const [hhInputBad, setHHInputBad]       = useState<boolean>(false);
     const [mmInputBad, setMMInputBad]       = useState<boolean>(false);
-    const [ssInputBad, setSSInputBad]       = useState<boolean>(false);
     const [scenarioTime, setScenarioTime]   = useState(time);
-    const [tmpScenTime, setTmpScenTime]     = useState({HH:0,MM:0,SS:0});       
+    const [tmpScenTime, setTmpScenTime]     = useState({HH:time.getHours(),MM:time.getMinutes(),SS:time.getSeconds()});       
     const [deltaT, setDeltaT]               = useState({HH:0,MM:0,SS:0});              
     
     
@@ -33,6 +34,9 @@ const ScenarioClock = () => {
             newDate.setMinutes(update.emitTimeSet.MM);
             newDate.setSeconds(update.emitTimeSet.SS);
             setScenarioTime(newDate);
+        }
+        else if (update.type === "ClockUpdatePing") {
+            if (ewok.team !== "Instructor") {setIsRunning(update.instIsRunning);setDeltaT(update.timeDeltaT)};
         }
         else {alert("Socket Transmit format not accepted.")}
     };
@@ -61,7 +65,7 @@ const ScenarioClock = () => {
         // displayed clock does not reset based on new date calculation
 
         e.preventDefault();
-        let tmpDelT = {HH:0, MM:0, SS:0};
+        tmpDelT = {HH:0, MM:0, SS:0};
         if (!isRunning) {
             // Calculate and Set a delta T
             let tmpHH = new Date().getHours();
@@ -85,6 +89,17 @@ const ScenarioClock = () => {
         setTmpScenTime({...tmpScenTime, SS:0})
         socket.emit('ScenarioClock',{type:"ClockSet",emitTimeSet:{...tmpScenTime,SS:0}});
     }
+
+    const sendPing = () => {
+        let tmpHH = new Date().getHours();
+        let tmpMM = new Date().getMinutes();
+        let tmpSS = new Date().getSeconds();
+        tmpDelT = {HH: tmpHH - scenarioTime.getHours(), MM: tmpMM - scenarioTime.getMinutes(), SS: tmpSS - scenarioTime.getSeconds()}
+
+        socket.emit('ScenarioClock',{type:"ClockUpdatePing", timeDeltaT:tmpDelT, instIsRunning:isRunning})
+    }
+
+
 
     // Handle time inputs
     const handleHHChange = (e:any) => {
@@ -113,19 +128,8 @@ const ScenarioClock = () => {
             } else {setMMInputBad(true)}
         } else {setMMInputBad(true)} 
     }
-    const handleSSChange = (e:any) => {
-        let input = parseInt(e.target.value);
-        if (!isNaN(input)) {
-            if (input >= 0 && input < 60) {
-                const tmpClock = {
-                    ...tmpScenTime,
-                    SS: input
-                }
-                setTmpScenTime(tmpClock);
-                setSSInputBad(false);
-            } else {setSSInputBad(true)}
-        } else {setSSInputBad(true)}
-    }
+
+
 
     // Handle Socket Pings
     useEffect(() => {
@@ -146,6 +150,26 @@ const ScenarioClock = () => {
         return () => clearInterval(intervalID);
     },[isRunning])
 
+    // useEffect(() => {
+    //     // Sends out ping to catch up clock for any new logins
+    //     pingInterval = setInterval(sendPing, 10000)
+    //     return () => clearInterval(pingInterval);
+    // }, [])
+
+    // useEffect (()=> {
+    //     if (ewok.team === "Instructor" && isRunning) {
+    //         pingInterval = setInterval(sendPing,10000);
+    //     }
+    //     if (ewok.team!=="Instructor") return () => clearInterval(pingInterval)
+    // },[isRunning])
+
+    useEffect (() => {
+        if (ewok.team==="Instructor") {
+            pingInterval = setInterval(sendPing,5000);
+        }
+        return () => clearInterval(pingInterval);
+    },[])
+
 
 
     // Edit Display
@@ -162,12 +186,7 @@ const ScenarioClock = () => {
                         placeholder="MM" 
                         onChange={e => handleMMChange(e)} 
                         className={mmInputBad ? "BadTimeInput" : ""}>
-                    </input> {/*}: 
-                    <input type="text" 
-                        placeholder="SS" 
-                        onChange={e => handleSSChange(e)} 
-                        className={ssInputBad ? "BadTimeInput" : ""}>
-                    </input>*/}
+                    </input>
                 </div>
                 <div className="SetButton">
                     <button onClick={handleSetButton}>Set</button>
