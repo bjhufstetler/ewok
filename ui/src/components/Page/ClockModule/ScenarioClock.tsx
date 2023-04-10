@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useEwokContext } from "../../../context/EwokContext";
 import './ScenarioClock.css';
 
+// TODO: time being sent via ping is wrong by varying amounts, fix
 
 const ScenarioClock = () => {
     let time = new Date();
@@ -35,9 +36,9 @@ const ScenarioClock = () => {
             newDate.setSeconds(update.emitTimeSet.SS);
             setScenarioTime(newDate);
         }
-        else if (update.type === "ClockUpdatePing") {
-            if (ewok.team !== "Instructor") {setIsRunning(update.instIsRunning);setDeltaT(update.timeDeltaT)};
-        }
+        // else if (update.type === "ClockUpdatePing") {
+        //     if (ewok.team !== "Instructor") {setIsRunning(true);setDeltaT(update.timeDeltaT)};
+        // }
         else {alert("Socket Transmit format not accepted.")}
     };
 
@@ -90,14 +91,14 @@ const ScenarioClock = () => {
         socket.emit('ScenarioClock',{type:"ClockSet",emitTimeSet:{...tmpScenTime,SS:0}});
     }
 
-    const sendPing = () => {
-        let tmpHH = new Date().getHours();
-        let tmpMM = new Date().getMinutes();
-        let tmpSS = new Date().getSeconds();
-        tmpDelT = {HH: tmpHH - scenarioTime.getHours(), MM: tmpMM - scenarioTime.getMinutes(), SS: tmpSS - scenarioTime.getSeconds()}
+    // const sendPing = () => {
+    //     let tmpHH = new Date().getHours();
+    //     let tmpMM = new Date().getMinutes();
+    //     let tmpSS = new Date().getSeconds();
+    //     tmpDelT = {HH: tmpHH - scenarioTime.getHours(), MM: tmpMM - scenarioTime.getMinutes(), SS: tmpSS - scenarioTime.getSeconds()}
 
-        socket.emit('ScenarioClock',{type:"ClockUpdatePing", timeDeltaT:tmpDelT, instIsRunning:isRunning})
-    }
+    //     socket.emit('ScenarioClock',{type:"ClockUpdatePing", timeDeltaT:tmpDelT})
+    // }
 
 
 
@@ -163,12 +164,13 @@ const ScenarioClock = () => {
     //     if (ewok.team!=="Instructor") return () => clearInterval(pingInterval)
     // },[isRunning])
 
-    useEffect (() => {
-        if (ewok.team==="Instructor") {
-            pingInterval = setInterval(sendPing,5000);
-        }
-        return () => clearInterval(pingInterval);
-    },[])
+    // useEffect (() => {
+    //     if (ewok.team==="Instructor" && isRunning) {
+    //         pingInterval = setInterval(sendPing,5000); 
+    //         console.log("Sending ping.")
+    //     }
+    //     return () => clearInterval(pingInterval);
+    // },[])
 
 
 
