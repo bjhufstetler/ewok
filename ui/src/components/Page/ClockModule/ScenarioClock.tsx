@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useEwokContext } from "../../../context/EwokContext";
 import './ScenarioClock.css';
 
-// TODO: time being sent via ping is wrong by varying amounts, fix
+// TODO: time being sent via ping is wrong by varying amounts, fix ( ScenarioTime and TmpScenTime are not being updated each second, see console.log in sendPing)
 
 const ScenarioClock = () => {
     let time = new Date();
@@ -36,9 +36,12 @@ const ScenarioClock = () => {
             newDate.setSeconds(update.emitTimeSet.SS);
             setScenarioTime(newDate);
         }
-        // else if (update.type === "ClockUpdatePing") {
-        //     if (ewok.team !== "Instructor") {setIsRunning(true);setDeltaT(update.timeDeltaT)};
-        // }
+        else if (update.type === "ClockUpdatePing") {
+            if (ewok.team !== "Instructor") {
+                setDeltaT(update.timeDeltaT);
+                setIsRunning(update.runningBool);
+            };
+        }
         else {alert("Socket Transmit format not accepted.")}
     };
 
@@ -91,14 +94,22 @@ const ScenarioClock = () => {
         socket.emit('ScenarioClock',{type:"ClockSet",emitTimeSet:{...tmpScenTime,SS:0}});
     }
 
-    // const sendPing = () => {
-    //     let tmpHH = new Date().getHours();
-    //     let tmpMM = new Date().getMinutes();
-    //     let tmpSS = new Date().getSeconds();
-    //     tmpDelT = {HH: tmpHH - scenarioTime.getHours(), MM: tmpMM - scenarioTime.getMinutes(), SS: tmpSS - scenarioTime.getSeconds()}
+    const sendPing = () => {
+        let pingDelT = {HH:0, MM:0, SS:0};
+        // Calculate and Set a delta T
+        let tmpHH = new Date().getHours();
+        let tmpMM = new Date().getMinutes();
+        let tmpSS = new Date().getSeconds();
+        pingDelT = {HH: tmpHH - scenarioTime.getHours(), MM: tmpMM - scenarioTime.getMinutes(), SS: tmpSS - scenarioTime.getSeconds()}
+        
 
-    //     socket.emit('ScenarioClock',{type:"ClockUpdatePing", timeDeltaT:tmpDelT})
-    // }
+        socket.emit('ScenarioClock',{type:"ClockUpdatePing", timeDeltaT:pingDelT, runningBool: isRunning})
+
+        // Debug console log to show what ping DelT, referenced Scenario Time, and isRunning bool on intsructor side
+        console.log('Sending Ping: isRunning='+isRunning.toString()+'   pingDelT='+JSON.stringify(pingDelT)+'   Scenario Time='+
+        scenarioTime.getHours().toString()+':'+scenarioTime.getMinutes().toString()+':'+scenarioTime.getSeconds().toString()+'   TmpScenTime: '+
+        JSON.stringify(tmpScenTime));
+    }
 
 
 
@@ -146,10 +157,18 @@ const ScenarioClock = () => {
     useEffect(()=> {
         // Updates the clock once a second using the updateTime function above, 
         // or stops it if isRunning is made False via clicking Stop
-
         if (isRunning) {intervalID = setInterval(updateTime, 1000/*ms*/);}
         return () => clearInterval(intervalID);
     },[isRunning])
+
+    // To test the isRunning variable
+    // useEffect(() => {
+    //     if (ewok.team==="Instructor") {
+    //         pingInterval = setInterval(() => {
+    //             alert(isRunning.toString())
+    //     },10000)}
+    //     return () => clearInterval(pingInterval);
+    // },[])
 
     // useEffect(() => {
     //     // Sends out ping to catch up clock for any new logins
@@ -164,13 +183,13 @@ const ScenarioClock = () => {
     //     if (ewok.team!=="Instructor") return () => clearInterval(pingInterval)
     // },[isRunning])
 
-    // useEffect (() => {
-    //     if (ewok.team==="Instructor" && isRunning) {
-    //         pingInterval = setInterval(sendPing,5000); 
-    //         console.log("Sending ping.")
-    //     }
-    //     return () => clearInterval(pingInterval);
-    // },[])
+    useEffect (() => {
+        if (ewok.team==="Instructor") {
+            pingInterval = setInterval(sendPing,5000); 
+            console.log("Sending ping.")
+        }
+        return () => clearInterval(pingInterval);
+    },[])
 
 
 
