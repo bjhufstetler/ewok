@@ -7,7 +7,8 @@ const Transmitter = () => {
     const minFrequency = 800;
     const maxFrequency = 2200;
     const maxDataRate = 60;
-    const maxPower = -50
+    const minDataRate = 0.1; 
+    const maxPower = -45; 
 
     const { equipment } = useEquipmentContext();
     const { socket } = useEwokContext();
@@ -157,6 +158,9 @@ const Transmitter = () => {
         } else if ( dr > maxDataRate ) {
             alert('Data rate exceeds limits.');
             return;
+        } else if ( dr < minDataRate ) {
+            alert('Data rate below minimum limit.');
+            return;
         } else if ( power > maxPower ) {
             alert('Power exceeds limits.')
             return;
@@ -292,7 +296,7 @@ const Transmitter = () => {
                     <input className={isNaN(settings?.cf) || settings?.cf < minFrequency || settings.cf > maxFrequency? "invalid" : ""} type='text' value={settings?.cf} onChange={e => handleChangeCF(e)}></input>
                     <span className='unit'>MHz</span>
                     <span className='label'>Data Rate:</span>    
-                    <input type='text' className={isNaN(settings?.dr) || settings?.dr > maxDataRate ? "invalid" : ""} value={settings?.dr} onChange={e => handleChangeDR(e)}></input>
+                    <input type='text' className={isNaN(settings?.dr) || settings?.dr < minDataRate || settings?.dr > maxDataRate  ? "invalid" : ""} value={settings?.dr} onChange={e => handleChangeDR(e)}></input>
                     <span className='unit'>MHz</span>
                     <span className='label'>Modulation:</span>    
                     <select value={settings?.mod} onChange={e => handleChangeMod(e)}>
